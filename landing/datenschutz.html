@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Datenschutz — SEO Cockpit</title>
+    <meta
+      name="description"
+      content="Datenschutzerklärung für SEO Cockpit: Hosting, Plausible Analytics, Warteliste, Supabase und Ihre Rechte."
+    />
+    <link rel="canonical" href="https://example.com/landing/datenschutz.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700&family=Lexend:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ["Fraunces", "Georgia", "serif"],
+              sans: ["Lexend", "system-ui", "sans-serif"],
+            },
+            colors: {
+              ink: {
+                950: "#07080b",
+                900: "#0c0e12",
+                800: "#12151c",
+                700: "#1a1e28",
+                600: "#252a36",
+              },
+              mist: "#94a3b8",
+              frost: "#e2e8f0",
+              signal: { DEFAULT: "#34d399", dim: "#059669", glow: "#6ee7b7" },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="noise font-sans text-frost antialiased selection:bg-signal/30 selection:text-frost">
+    <header
+      class="sticky top-0 z-[60] w-full border-b border-transparent backdrop-blur-md transition-[border-color,background-color,box-shadow] duration-300 supports-[backdrop-filter]:bg-ink-950/75 bg-ink-950/92"
+      id="site-header"
+    >
+      <div
+        class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-8 md:py-5"
+      >
+        <a
+          href="index.html"
+          class="font-display flex min-h-[44px] min-w-[44px] items-center text-lg font-semibold tracking-tight text-frost"
+          >SEO Cockpit</a
+        >
+        <nav
+          class="hidden items-center gap-6 text-sm text-mist md:flex md:gap-8"
+          aria-label="Hauptnavigation"
+        >
+          <a class="inline-flex min-h-[44px] items-center transition hover:text-frost" href="index.html#problem"
+            >Problem</a
+          >
+          <a class="inline-flex min-h-[44px] items-center transition hover:text-frost" href="index.html#loesung"
+            >Lösung</a
+          >
+          <a class="inline-flex min-h-[44px] items-center transition hover:text-frost" href="index.html#ablauf"
+            >Ablauf</a
+          >
+        </nav>
+        <div class="flex shrink-0 items-center gap-2">
+          <a
+            href="index.html#cta"
+            class="hidden min-h-[44px] items-center justify-center rounded-full border border-ink-600 bg-ink-800/80 px-5 py-2.5 text-sm font-medium text-frost backdrop-blur transition hover:border-signal/40 hover:bg-ink-700/80 md:inline-flex"
+            >Kostenlos starten</a
+          >
+          <button
+            type="button"
+            id="nav-toggle"
+            class="inline-flex min-h-[44px] min-w-[44px] touch-manipulation items-center justify-center rounded-lg border border-ink-600 bg-ink-800/90 text-frost md:hidden"
+            aria-expanded="false"
+            aria-controls="mobile-nav-panel"
+          >
+            <span class="sr-only">Menü öffnen oder schließen</span>
+            <svg
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div
+      id="mobile-nav-panel"
+      class="fixed inset-0 z-[70] md:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Mobile Navigation"
+    >
+      <div class="mobile-nav-backdrop absolute inset-0 bg-ink-950/85 backdrop-blur-sm" aria-hidden="true"></div>
+      <nav
+        class="mobile-nav-sheet absolute right-0 top-0 flex h-full w-[min(100%,20rem)] flex-col border-l border-ink-700 bg-ink-900 shadow-2xl"
+        aria-label="Mobile"
+      >
+        <div class="flex flex-1 flex-col gap-0 p-4 pt-6">
+          <a
+            href="index.html#problem"
+            class="flex min-h-[48px] items-center border-b border-ink-700/80 py-2 text-base text-frost"
+            >Problem</a
+          >
+          <a
+            href="index.html#loesung"
+            class="flex min-h-[48px] items-center border-b border-ink-700/80 py-2 text-base text-frost"
+            >Lösung</a
+          >
+          <a
+            href="index.html#ablauf"
+            class="flex min-h-[48px] items-center border-b border-ink-700/80 py-2 text-base text-frost"
+            >Ablauf</a
+          >
+          <a
+            href="index.html#cta"
+            class="mt-4 inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-signal px-4 py-3 text-center text-sm font-semibold text-ink-950"
+            >Kostenlos starten</a
+          >
+        </div>
+      </nav>
+    </div>
+
+    <main class="border-t border-ink-800 bg-ink-950 py-12 md:py-16">
+      <article class="mx-auto max-w-3xl px-4 sm:px-6 md:px-8">
+        <h1 class="font-display text-3xl font-semibold tracking-tight text-frost md:text-4xl">
+          Datenschutzerklärung
+        </h1>
+        <p class="mt-2 text-sm text-mist">Stand: März 2026 (Muster für Web-App, bitte juristisch prüfen)</p>
+
+        <div class="mt-10 space-y-10 text-sm leading-relaxed text-mist md:text-base">
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">1. Verantwortlicher</h2>
+            <p class="mt-3">
+              Verantwortlich für die Datenverarbeitung im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:
+            </p>
+            <p class="mt-3 text-frost/95">
+              [Vorname Nachname]<br />
+              [Straße, PLZ Ort]<br />
+              Deutschland<br />
+              E-Mail:
+              <a
+                class="text-signal-glow underline decoration-signal/30 underline-offset-2 hover:decoration-signal"
+                href="mailto:email@example.com"
+                >email@example.com</a
+              >
+            </p>
+          </section>
+
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">2. Hosting und Infrastruktur</h2>
+            <p class="mt-3">
+              Diese Website und die Web-App „SEO Cockpit“ werden über die Plattform
+              <strong class="font-medium text-frost">Vercel Inc.</strong> ausgeliefert. Die Ausführung erfolgt in
+              Rechenzentren in der <strong class="font-medium text-frost">Europäischen Union</strong> (EU), soweit Sie
+              die EU-Region in Ihrem Projekt wählen. Vercel verarbeitet dabei technische Daten (z. B. IP-Adresse,
+              Zeitstempel, angefragte Ressourcen), die zur Auslieferung und Absicherung der Anwendung erforderlich sind.
+              Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an sicherem, stabilem Betrieb).
+            </p>
+            <p class="mt-3">
+              Anwendungsdaten (z. B. Nutzerkonten, projektbezogene Inhalte) können in einer Datenbank bei
+              <strong class="font-medium text-frost">Supabase</strong> gespeichert werden. Supabase wird
+              <strong class="font-medium text-frost">in der EU</strong> betrieben (Region z. B. Frankfurt), sofern Sie
+              diese Region konfigurieren. Mit Supabase besteht ein Auftragsverarbeitungsvertrag (AVV), soweit
+              erforderlich.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">3. Webanalyse mit Plausible (ohne Cookies)</h2>
+            <p class="mt-3">
+              Wir setzen <strong class="font-medium text-frost">Plausible Analytics</strong> ein — eine
+              datenschutzfreundliche Nutzungsanalyse <strong class="font-medium text-frost">ohne Cookies</strong> und
+              ohne Erhebung personenbezogener Daten zu Werbezwecken. Plausible verarbeitet keine vollständigen
+              IP-Adressen dauerhaft im Klartext; es werden keine geräte- oder nutzerbezogenen Profile über mehrere
+              Websites hinweg gebildet. Es findet <strong class="font-medium text-frost">kein Google Analytics</strong>
+              und kein vergleichbares Third-Party-Tracking mit Cookie-Banner-Pflicht statt.
+            </p>
+            <p class="mt-3">Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an Reichweitenmessung und Optimierung der Website ohne invasive Tracking-Methoden).</p>
+          </section>
+
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">4. Keine Cookies zu Marketing- oder Tracking-Zwecken</h2>
+            <p class="mt-3">
+              Wir verwenden <strong class="font-medium text-frost">keine nicht notwendigen Cookies</strong>. Soweit
+              technisch unbedingt erforderliche Speicherung (z. B. Sitzung für eingeloggte Nutzer der App) erfolgt,
+              geschieht dies funktionsgebunden und gemäß den Informationspflichten in der App bzw. in den
+              Nutzungsbedingungen.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">5. Warteliste und E-Mail-Kontakt</h2>
+            <p class="mt-3">
+              Wenn Sie unser <strong class="font-medium text-frost">Wartelisten-Formular</strong> nutzen, verarbeiten wir
+              die von Ihnen angegebene <strong class="font-medium text-frost">E-Mail-Adresse</strong> und ggf. weitere
+              freiwillige Angaben (z. B. Name, Unternehmen), um Sie über den Start oder Updates von SEO Cockpit zu
+              informieren.
+            </p>
+            <ul class="mt-3 list-disc space-y-2 pl-5">
+              <li>
+                Rechtsgrundlage bei Einwilligung: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung, die Sie jederzeit mit Wirkung
+                für die Zukunft widerrufen können).
+              </li>
+              <li>
+                Rechtsgrundlage bei vorvertraglicher Kommunikation: Art. 6 Abs. 1 lit. b DSGVO, soweit die Anfrage auf
+                den Abschluss eines Vertrags gerichtet ist.
+              </li>
+            </ul>
+            <p class="mt-3">
+              Die Daten werden gelöscht, sobald Sie die Einwilligung widerrufen oder der Zweck entfällt und keine
+              gesetzlichen Aufbewahrungspflichten entgegenstehen.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">6. Nutzung der Web-App (Konto)</h2>
+            <p class="mt-3">
+              Bei Registrierung und Nutzung von SEO Cockpit werden die zur Vertragserfüllung erforderlichen Daten
+              (z. B. Login, Projektdaten, von Ihnen hochgeladene GSC-Exporte) verarbeitet. Rechtsgrundlage: Art. 6 Abs. 1
+              lit. b DSGVO. Auftragsverarbeitung mit Unterauftragnehmern (z. B. Hosting, Datenbank) erfolgt auf
+              Grundlage von Art. 28 DSGVO.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">7. Empfänger und Drittlandtransfer</h2>
+            <p class="mt-3">
+              Eine Übermittlung in ein Drittland außerhalb der EU/des EWR findet nur statt, wenn Sie dafür ein
+              angebotenes Produkt wählen, das technisch nur außerhalb der EU betrieben wird, oder wenn Sie ausdrücklich
+              zugestimmt haben. Standardmäßig ist die beschriebene Konfiguration auf <strong class="font-medium text-frost">EU-Hosting</strong> ausgelegt.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">8. Speicherdauer</h2>
+            <p class="mt-3">
+              Personenbezogene Daten werden nur so lange gespeichert, wie dies für die jeweiligen Zwecke erforderlich ist
+              oder gesetzliche Aufbewahrungsfristen bestehen. Log- und Analysedaten werden nach den dort geltenden,
+              minimalen Intervallen gelöscht oder anonymisiert (Plausible).
+            </p>
+          </section>
+
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">9. Ihre Rechte</h2>
+            <p class="mt-3">Sie haben nach Maßgabe der DSGVO insbesondere:</p>
+            <ul class="mt-3 list-disc space-y-2 pl-5">
+              <li>Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18)</li>
+              <li>Datenübertragbarkeit (Art. 20), Widerspruch (Art. 21)</li>
+              <li>Beschwerde bei einer Aufsichtsbehörde (Art. 77 DSGVO)</li>
+              <li>Widerruf einer Einwilligung mit Wirkung für die Zukunft (Art. 7 Abs. 3 DSGVO)</li>
+            </ul>
+            <p class="mt-3">
+              Zur Ausübung Ihrer Rechte genügt eine Nachricht an die oben genannte E-Mail-Adresse.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">10. Sicherheit</h2>
+            <p class="mt-3">
+              Die Datenübertragung erfolgt verschlüsselt über HTTPS (TLS). Intern greifen technische und organisatorische
+              Maßnahmen zum Schutz gegen unbefugten Zugriff.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">11. Änderungen</h2>
+            <p class="mt-3">
+              Wir behalten uns vor, diese Datenschutzerklärung anzupassen, wenn sich die Website, die App oder die
+              Rechtslage ändern. Maßgeblich ist die jeweils aktuelle Version auf dieser Seite.
+            </p>
+          </section>
+        </div>
+
+        <p class="mt-12 text-sm text-mist">
+          <a class="text-signal-glow hover:underline" href="index.html">← Zurück zur Startseite</a>
+        </p>
+      </article>
+    </main>
+
+    <footer class="border-t border-ink-800 bg-ink-950 py-12">
+      <div class="mx-auto flex max-w-6xl flex-col gap-8 px-4 text-sm text-mist sm:px-6 md:px-8">
+        <div
+          class="flex flex-col items-start justify-between gap-6 border-b border-ink-800/80 pb-8 sm:flex-row sm:items-center"
+        >
+          <p class="font-display text-base font-medium text-frost/90">SEO Cockpit</p>
+          <nav class="flex flex-wrap gap-x-6 gap-y-2" aria-label="Rechtliches">
+            <a class="inline-flex min-h-[44px] items-center transition hover:text-frost" href="impressum.html"
+              >Impressum</a
+            >
+            <a class="inline-flex min-h-[44px] items-center text-frost" href="datenschutz.html">Datenschutz</a>
+          </nav>
+        </div>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p>&copy; <span id="y"></span> SEO Cockpit. Alle Rechte vorbehalten.</p>
+          <p class="text-mist/90">Made in Germany</p>
+        </div>
+      </div>
+    </footer>
+    <script src="nav.js" defer></script>
+  </body>
+</html>

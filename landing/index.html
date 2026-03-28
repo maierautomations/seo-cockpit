@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SEO Cockpit — KI-gestützte Nachoptimierung für Redaktionen</title>
+    <meta
+      name="description"
+      content="Priorisiere Bestandsartikel mit GSC-Daten und KI: SEO Cockpit analysiert Inhalte, findet veraltete Kennzahlen und liefert SEO-Titel, Meta-Texte und FAQ-Vorschläge für Redaktionen im DACH-Raum."
+    />
+    <link rel="canonical" href="https://example.com/landing/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_DE" />
+    <meta
+      property="og:title"
+      content="SEO Cockpit — KI-gestützte Nachoptimierung für Redaktionen"
+    />
+    <meta
+      property="og:description"
+      content="Priorisiere Bestandsartikel mit GSC-Daten und KI. Artikelanalyse, Meta-Vorschläge und FAQ-Bausteine für SEO-Redaktionen."
+    />
+    <meta property="og:url" content="https://example.com/landing/" />
+    <meta property="og:image" content="https://example.com/og-seo-cockpit.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="SEO Cockpit — KI-gestützte Nachoptimierung für Redaktionen"
+    />
+    <meta
+      name="twitter:description"
+      content="Priorisiere Bestandsartikel mit GSC-Daten und KI — für Content-Teams im DACH-Raum."
+    />
+    <meta name="twitter:image" content="https://example.com/og-seo-cockpit.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "SEO Cockpit",
+        "url": "https://example.com/",
+        "logo": "https://example.com/og-seo-cockpit.png",
+        "description": "KI-gestütztes Optimierungstool für SEO-Redaktionen: GSC-Priorisierung, Artikelanalyse und Copy-Vorschläge.",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "DE"
+        },
+        "sameAs": []
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Lexend:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ["Fraunces", "Georgia", "serif"],
+              sans: ["Lexend", "system-ui", "sans-serif"],
+            },
+            colors: {
+              ink: {
+                950: "#07080b",
+                900: "#0c0e12",
+                800: "#12151c",
+                700: "#1a1e28",
+                600: "#252a36",
+              },
+              mist: "#94a3b8",
+              frost: "#e2e8f0",
+              signal: {
+                DEFAULT: "#34d399",
+                dim: "#059669",
+                glow: "#6ee7b7",
+              },
+            },
+            backgroundImage: {
+              "grid-fade":
+                "linear-gradient(to bottom, rgba(7,8,11,0) 0%, rgba(7,8,11,0.85) 45%, #07080b 100%), linear-gradient(rgba(52,211,153,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(52,211,153,0.04) 1px, transparent 1px)",
+            },
+            animation: {
+              "rise": "rise 0.8s ease-out forwards",
+              "rise-delay": "rise 0.8s ease-out 0.12s forwards",
+              "rise-delay-2": "rise 0.8s ease-out 0.24s forwards",
+            },
+            keyframes: {
+              rise: {
+                "0%": { opacity: "0", transform: "translateY(18px)" },
+                "100%": { opacity: "1", transform: "translateY(0)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="noise font-sans text-frost antialiased selection:bg-signal/30 selection:text-frost"
+  >
+    <!-- Nav: außerhalb des Hero-Wrappers, damit sticky über die ganze Seite gilt -->
+    <header
+      class="sticky top-0 z-[60] w-full border-b border-transparent backdrop-blur-md transition-[border-color,background-color,box-shadow] duration-300 supports-[backdrop-filter]:bg-ink-950/75 bg-ink-950/92"
+      id="site-header"
+    >
+      <div
+        class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-8 md:py-5"
+      >
+        <a
+          href="index.html"
+          class="font-display flex min-h-[44px] min-w-[44px] items-center text-lg font-semibold tracking-tight text-frost"
+          >SEO Cockpit</a
+        >
+        <nav
+          class="hidden items-center gap-6 text-sm text-mist md:flex md:gap-8"
+          aria-label="Hauptnavigation"
+        >
+          <a
+            href="index.html#problem"
+            class="inline-flex min-h-[44px] items-center transition hover:text-frost"
+            >Problem</a
+          >
+          <a
+            href="index.html#loesung"
+            class="inline-flex min-h-[44px] items-center transition hover:text-frost"
+            >Lösung</a
+          >
+          <a
+            href="index.html#ablauf"
+            class="inline-flex min-h-[44px] items-center transition hover:text-frost"
+            >Ablauf</a
+          >
+        </nav>
+        <div class="flex shrink-0 items-center gap-2">
+          <a
+            href="index.html#cta"
+            class="hidden min-h-[44px] items-center justify-center rounded-full border border-ink-600 bg-ink-800/80 px-5 py-2.5 text-sm font-medium text-frost backdrop-blur transition hover:border-signal/40 hover:bg-ink-700/80 md:inline-flex"
+            >Kostenlos starten</a
+          >
+          <button
+            type="button"
+            id="nav-toggle"
+            class="inline-flex min-h-[44px] min-w-[44px] touch-manipulation items-center justify-center rounded-lg border border-ink-600 bg-ink-800/90 text-frost md:hidden"
+            aria-expanded="false"
+            aria-controls="mobile-nav-panel"
+          >
+            <span class="sr-only">Menü öffnen oder schließen</span>
+            <svg
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div
+      id="mobile-nav-panel"
+      class="fixed inset-0 z-[70] md:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Mobile Navigation"
+    >
+      <div
+        class="mobile-nav-backdrop absolute inset-0 bg-ink-950/85 backdrop-blur-sm"
+        aria-hidden="true"
+      ></div>
+      <nav
+        class="mobile-nav-sheet absolute right-0 top-0 flex h-full w-[min(100%,20rem)] flex-col border-l border-ink-700 bg-ink-900 shadow-2xl"
+        aria-label="Mobile"
+      >
+        <div class="flex flex-1 flex-col gap-0 p-4 pt-6">
+          <a
+            href="index.html#problem"
+            class="flex min-h-[48px] items-center border-b border-ink-700/80 py-2 text-base text-frost"
+            >Problem</a
+          >
+          <a
+            href="index.html#loesung"
+            class="flex min-h-[48px] items-center border-b border-ink-700/80 py-2 text-base text-frost"
+            >Lösung</a
+          >
+          <a
+            href="index.html#ablauf"
+            class="flex min-h-[48px] items-center border-b border-ink-700/80 py-2 text-base text-frost"
+            >Ablauf</a
+          >
+          <a
+            href="index.html#cta"
+            class="mt-4 inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-signal px-4 py-3 text-center text-sm font-semibold text-ink-950"
+            >Kostenlos starten</a
+          >
+        </div>
+      </nav>
+    </div>
+
+    <div class="relative min-h-[min(100vh,880px)] hero-gradient">
+      <!-- Hero -->
+      <section
+        class="relative z-10 mx-auto max-w-6xl px-4 pb-20 pt-4 sm:px-6 md:px-8 md:pb-32 md:pt-8"
+        aria-labelledby="hero-heading"
+      >
+        <div
+          class="absolute left-1/2 top-0 h-[min(70vh,520px)] w-[min(100%,900px)] -translate-x-1/2 bg-grid-fade bg-[length:48px_48px] opacity-90"
+          aria-hidden="true"
+        ></div>
+        <div class="relative mx-auto max-w-3xl text-center">
+          <p
+            class="reveal mb-6 inline-flex items-center gap-2 rounded-full border border-signal/20 bg-signal/5 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-signal-glow"
+          >
+            Für SEO-Redaktionen &amp; Content-Teams im DACH-Raum
+          </p>
+          <h1
+            id="hero-heading"
+            class="reveal-delay-1 font-display text-[1.7rem] font-semibold leading-[1.15] tracking-tight text-frost sm:text-4xl md:text-5xl lg:text-6xl"
+          >
+            Rankings pflegen, nicht nur
+            <span class="italic text-signal">neue</span> Artikel schreiben
+          </h1>
+          <p
+            class="reveal-delay-2 mx-auto mt-6 max-w-xl text-lg font-light leading-relaxed text-mist"
+          >
+            SEO Cockpit priorisiert bestehende Inhalte mit GSC-Daten und KI —
+            damit veraltete Kennzahlen, Meta-Texte und FAQ-Lücken nicht unter
+            dem Radar bleiben.
+          </p>
+          <div
+            class="reveal-delay-2 mt-10 flex w-full max-w-md flex-col items-stretch justify-center gap-3 sm:mx-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4"
+          >
+            <a
+              href="#cta"
+              class="inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-signal px-8 py-3 text-sm font-semibold text-ink-950 shadow-[0_0_40px_-8px_rgba(52,211,153,0.55)] transition hover:bg-signal-glow sm:w-auto sm:min-w-[200px]"
+              >Kostenlos starten</a
+            >
+            <a
+              href="#loesung"
+              class="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-ink-600 px-8 py-3 text-sm font-medium text-frost transition hover:border-mist/40 hover:bg-ink-800/50 sm:w-auto sm:min-w-[200px]"
+              >Funktionen ansehen</a
+            >
+          </div>
+        </div>
+
+        <!-- Dashboard-Mockup -->
+        <div
+          class="reveal-delay-3 relative mx-auto mt-10 w-full max-w-[min(100%,56rem)] md:mt-14"
+          aria-hidden="true"
+        >
+          <div
+            class="absolute -inset-2 rounded-[1.2rem] bg-gradient-to-b from-signal/12 via-transparent to-transparent opacity-80 blur-2xl sm:-inset-4 md:-inset-6"
+          ></div>
+          <figure
+            class="relative w-full overflow-hidden rounded-lg border border-ink-600/90 bg-gradient-to-b from-ink-800/95 to-ink-900 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.65),0_0_0_1px_rgba(52,211,153,0.06)] sm:rounded-xl"
+          >
+            <div
+              class="flex items-center gap-2 border-b border-ink-700/80 bg-ink-800/60 px-3 py-2 sm:px-4 sm:py-2.5"
+            >
+              <span class="h-2.5 w-2.5 rounded-full bg-red-500/80"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-amber-500/70"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-signal/70"></span>
+              <span
+                class="ml-2 min-w-0 flex-1 truncate rounded-md border border-ink-600 bg-ink-900/80 px-2 py-1 text-left text-[10px] text-mist sm:ml-3 sm:px-3 sm:text-[11px]"
+                >app.seocockpit.de · Priorisierte URLs</span
+              >
+            </div>
+            <div class="grid gap-2.5 p-3 sm:grid-cols-3 sm:gap-4 sm:p-4">
+              <div
+                class="rounded-lg border border-ink-600/80 bg-ink-900/60 p-3 sm:p-3.5"
+              >
+                <p class="text-[10px] font-medium uppercase tracking-wider text-mist">
+                  Klicks (28 Tage)
+                </p>
+                <p class="font-display mt-1 text-2xl font-semibold text-signal">12,4k</p>
+                <p class="mt-1 text-[11px] text-mist/90">↑ 18 % vs. Vorperiode</p>
+              </div>
+              <div
+                class="rounded-lg border border-ink-600/80 bg-ink-900/60 p-3 sm:p-3.5"
+              >
+                <p class="text-[10px] font-medium uppercase tracking-wider text-mist">
+                  Ø Position
+                </p>
+                <p class="font-display mt-1 text-2xl font-semibold text-frost">5,2</p>
+                <p class="mt-1 text-[11px] text-signal/90">−2,1 nach Refresh</p>
+              </div>
+              <div
+                class="rounded-lg border border-ink-600/80 bg-ink-900/60 p-3 sm:p-3.5"
+              >
+                <p class="text-[10px] font-medium uppercase tracking-wider text-mist">
+                  Priorisiert
+                </p>
+                <p class="font-display mt-1 text-2xl font-semibold text-frost">24</p>
+                <p class="mt-1 text-[11px] text-mist/90">URLs mit Handlungsbedarf</p>
+              </div>
+            </div>
+            <div class="border-t border-ink-700/70 px-1 pb-3 pt-1 sm:px-2 sm:pb-4">
+              <div class="overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
+                <table class="w-full min-w-[280px] text-left text-[10px] text-mist sm:min-w-[320px] sm:text-[11px]">
+                  <thead>
+                    <tr class="border-b border-ink-700/60 text-[10px] uppercase tracking-wide text-mist/70">
+                      <th class="whitespace-nowrap px-2 py-2 font-medium">Seite / Query</th>
+                      <th class="whitespace-nowrap px-2 py-2 font-medium">Priorität</th>
+                      <th class="whitespace-nowrap px-2 py-2 font-medium">Pos.</th>
+                      <th class="whitespace-nowrap px-2 py-2 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="font-sans text-[11px]">
+                    <tr class="border-b border-ink-700/40 bg-signal/[0.04]">
+                      <td class="max-w-[140px] truncate px-2 py-2.5 text-frost/95">
+                        /ratgeber/girokonto-vergleich
+                      </td>
+                      <td class="px-2 py-2.5">
+                        <span
+                          class="inline-block rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-medium text-amber-200"
+                          >Hoch</span
+                        >
+                      </td>
+                      <td class="px-2 py-2.5 tabular-nums text-frost">12 → 5</td>
+                      <td class="px-2 py-2.5">
+                        <span
+                          class="inline-block rounded-full bg-signal/15 px-2 py-0.5 text-[10px] font-medium text-signal-glow"
+                          >KI</span
+                        >
+                      </td>
+                    </tr>
+                    <tr class="border-b border-ink-700/40">
+                      <td class="max-w-[140px] truncate px-2 py-2.5 text-frost/90">
+                        tagesgeld zinsen 2026
+                      </td>
+                      <td class="px-2 py-2.5">
+                        <span
+                          class="inline-block rounded-full bg-sky-500/15 px-2 py-0.5 text-[10px] font-medium text-sky-200/90"
+                          >Mittel</span
+                        >
+                      </td>
+                      <td class="px-2 py-2.5 tabular-nums text-frost">8</td>
+                      <td class="px-2 py-2.5">
+                        <span
+                          class="inline-block rounded-full border border-ink-600 px-2 py-0.5 text-[10px] text-mist"
+                          >Offen</span
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="max-w-[140px] truncate px-2 py-2.5 text-frost/90">
+                        /news/bafög-reform
+                      </td>
+                      <td class="px-2 py-2.5">
+                        <span
+                          class="inline-block rounded-full bg-ink-600 px-2 py-0.5 text-[10px] text-mist"
+                          >Niedrig</span
+                        >
+                      </td>
+                      <td class="px-2 py-2.5 tabular-nums text-frost">21</td>
+                      <td class="px-2 py-2.5">
+                        <span
+                          class="inline-block rounded-full border border-ink-600 px-2 py-0.5 text-[10px] text-mist"
+                          >Queue</span
+                        >
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </figure>
+        </div>
+      </section>
+    </div>
+
+    <!-- Problem -->
+    <section
+      id="problem"
+      class="section-reveal relative border-t border-ink-700 bg-gradient-to-b from-ink-900 from-40% via-ink-900 to-ink-950 py-20 md:py-28"
+      aria-labelledby="problem-heading"
+    >
+      <div class="mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
+        <div class="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+          <div>
+            <h2
+              id="problem-heading"
+              class="font-display text-3xl font-semibold tracking-tight text-frost md:text-4xl"
+            >
+              Du veröffentlichst neue Artikel — aber deine bestehenden verlieren
+              Rankings.
+            </h2>
+            <p class="mt-6 text-lg leading-relaxed text-mist">
+              Kennzahlen veralten, Meta-Descriptions passen nicht mehr,
+              FAQ-Blöcke fehlen. Ohne klare Priorität aus den Search-Console-Daten
+              bleibt der Redaktions-Alltag reaktiv statt strategisch.
+            </p>
+          </div>
+          <ul
+            class="space-y-4 rounded-2xl border border-ink-600 bg-ink-800/40 p-6 backdrop-blur-sm sm:p-8"
+            role="list"
+          >
+            <li class="flex gap-4">
+              <span
+                class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal"
+                aria-hidden="true"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </span>
+              <div>
+                <p class="font-medium text-frost">Veraltete Zahlen &amp; Claims</p>
+                <p class="mt-1 text-sm text-mist">
+                  Statistiken und Jahreszahlen wirken schnell unglaubwürdig — für Nutzer und für Google.
+                </p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <span
+                class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal"
+                aria-hidden="true"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                </svg>
+              </span>
+              <div>
+                <p class="font-medium text-frost">Snippet &amp; Meta nicht mehr passend</p>
+                <p class="mt-1 text-sm text-mist">
+                  Titel und Descriptions spiegeln den Seiteninhalt nicht — CTR und Relevanz leiden.
+                </p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <span
+                class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-signal/10 text-signal"
+                aria-hidden="true"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                </svg>
+              </span>
+              <div>
+                <p class="font-medium text-frost">FAQ &amp; Struktur fehlen</p>
+                <p class="mt-1 text-sm text-mist">
+                  Wo Rich Results möglich wären, fehlt oft die saubere Auszeichnung — und damit Sichtbarkeit.
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div
+        class="pointer-events-none absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-ink-950 via-ink-950/50 to-transparent"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="pointer-events-none absolute bottom-0 left-0 right-0 flex justify-center px-4 sm:px-6"
+        aria-hidden="true"
+      >
+        <div
+          class="h-px w-full max-w-3xl bg-gradient-to-r from-transparent via-signal/25 to-transparent"
+        ></div>
+      </div>
+    </section>
+
+    <!-- Lösung -->
+    <section
+      id="loesung"
+      class="section-reveal relative bg-ink-950 py-20 md:py-28"
+      aria-labelledby="loesung-heading"
+    >
+      <div class="mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
+        <div class="mx-auto max-w-2xl text-center">
+          <h2
+            id="loesung-heading"
+            class="font-display text-3xl font-semibold tracking-tight text-frost md:text-4xl"
+          >
+            Alles, was Redaktionen für die nächste Optimierungsrunde brauchen
+          </h2>
+          <p class="mt-4 text-mist">
+            Datengetrieben priorisieren, KI-gestützt analysieren, konkrete Textbausteine mitnehmen.
+          </p>
+        </div>
+        <div class="mt-16 grid gap-8 md:grid-cols-3">
+          <article
+            class="group rounded-2xl border border-ink-700 bg-ink-900/60 p-8 transition hover:border-signal/25 hover:shadow-[0_0_0_1px_rgba(52,211,153,0.08)]"
+          >
+            <div
+              class="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-signal/10 text-signal transition group-hover:bg-signal/15"
+              aria-hidden="true"
+            >
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+            </div>
+            <h3 class="font-display text-xl font-semibold text-frost">
+              GSC-Daten hochladen
+            </h3>
+            <p class="mt-3 text-sm leading-relaxed text-mist">
+              Import aus der Search Console — SEO Cockpit sortiert und priorisiert automatisch,
+              welche URLs und Queries zuerst an der Reihe sind.
+            </p>
+          </article>
+          <article
+            class="group rounded-2xl border border-ink-700 bg-ink-900/60 p-8 transition hover:border-signal/25 hover:shadow-[0_0_0_1px_rgba(52,211,153,0.08)]"
+          >
+            <div
+              class="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-signal/10 text-signal transition group-hover:bg-signal/15"
+              aria-hidden="true"
+            >
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+              </svg>
+            </div>
+            <h3 class="font-display text-xl font-semibold text-frost">
+              KI-Artikelanalyse
+            </h3>
+            <p class="mt-3 text-sm leading-relaxed text-mist">
+              Erkennt veraltete Zahlen, fehlende Elemente und inhaltliche Lücken — strukturiert
+              und direkt auf die Seite bezogen.
+            </p>
+          </article>
+          <article
+            class="group rounded-2xl border border-ink-700 bg-ink-900/60 p-8 transition hover:border-signal/25 hover:shadow-[0_0_0_1px_rgba(52,211,153,0.08)]"
+          >
+            <div
+              class="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-signal/10 text-signal transition group-hover:bg-signal/15"
+              aria-hidden="true"
+            >
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+              </svg>
+            </div>
+            <h3 class="font-display text-xl font-semibold text-frost">
+              Copy-Paste-Vorschläge
+            </h3>
+            <p class="mt-3 text-sm leading-relaxed text-mist">
+              Vorschläge für SEO-Titel, Meta-Descriptions und FAQ-Blöcke — zum Übernehmen ins CMS,
+              ohne endloses Hin- und Herschreiben.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ablauf -->
+    <section
+      id="ablauf"
+      class="section-reveal border-t border-ink-700 bg-ink-900 py-20 md:py-28"
+      aria-labelledby="ablauf-heading"
+    >
+      <div class="mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
+        <h2
+          id="ablauf-heading"
+          class="text-center font-display text-3xl font-semibold tracking-tight text-frost md:text-4xl"
+        >
+          So funktioniert&apos;s
+        </h2>
+        <p class="mx-auto mt-4 max-w-xl text-center text-mist">
+          Drei klare Schritte von Rohdaten bis zu umsetzbaren Texten.
+        </p>
+        <ol
+          class="mt-16 grid gap-10 md:grid-cols-3 md:gap-8"
+          role="list"
+        >
+          <li class="text-center md:text-left">
+            <span
+              class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-signal/30 bg-signal/10 font-display text-sm font-semibold text-signal"
+              >1</span
+            >
+            <h3 class="font-display text-lg font-semibold text-frost">
+              Daten einspielen
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-mist">
+              GSC-Export hochladen — Suchanfragen, Seiten, Klicks und Impressionen landen an einem Ort.
+            </p>
+          </li>
+          <li class="text-center md:text-left">
+            <span
+              class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-signal/30 bg-signal/10 font-display text-sm font-semibold text-signal"
+              >2</span
+            >
+            <h3 class="font-display text-lg font-semibold text-frost">
+              Priorität &amp; Analyse
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-mist">
+              Das Cockpit priorisiert URLs; die KI prüft Inhalte auf veraltete Fakten und SEO-Lücken.
+            </p>
+          </li>
+          <li class="text-center md:text-left">
+            <span
+              class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-signal/30 bg-signal/10 font-display text-sm font-semibold text-signal"
+              >3</span
+            >
+            <h3 class="font-display text-lg font-semibold text-frost">
+              Optimieren &amp; veröffentlichen
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-mist">
+              Vorschläge kopieren, im CMS einpflegen — und messen, wie sich CTR und Positionen entwickeln.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section
+      class="section-reveal relative overflow-hidden bg-ink-950 py-20 md:py-28"
+      aria-labelledby="proof-heading"
+    >
+      <div
+        class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(52,211,153,0.06),transparent_65%)]"
+        aria-hidden="true"
+      ></div>
+      <div class="relative mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
+        <div class="grid gap-12 lg:grid-cols-12 lg:items-end lg:gap-10">
+          <div class="lg:col-span-5">
+            <h2
+              id="proof-heading"
+              class="font-display text-3xl font-semibold leading-tight tracking-tight text-frost md:text-4xl"
+            >
+              Von Position&nbsp;12 auf Position&nbsp;5
+            </h2>
+            <p class="mt-4 text-mist">
+              Typisches Muster nach gezielter Überarbeitung: mehr Relevanz im Snippet,
+              bessere Absichtsabdeckung im Text — und messbar stabilere Platzierungen.
+            </p>
+          </div>
+          <div class="grid gap-6 sm:grid-cols-3 lg:col-span-7">
+            <div
+              class="rounded-2xl border border-ink-700 bg-ink-900/50 p-6 text-center backdrop-blur-sm md:text-left"
+            >
+              <p class="font-display text-4xl font-semibold text-signal md:text-5xl">
+                +38<span class="text-signal-glow">%</span>
+              </p>
+              <p class="mt-2 text-sm font-medium text-frost">CTR nach Meta-Update</p>
+              <p class="mt-1 text-xs text-mist">Beispiel aus Redaktions-Workflows</p>
+            </div>
+            <div
+              class="rounded-2xl border border-ink-700 bg-ink-900/50 p-6 text-center backdrop-blur-sm md:text-left"
+            >
+              <p class="font-display text-4xl font-semibold text-signal md:text-5xl">
+                −7
+              </p>
+              <p class="mt-2 text-sm font-medium text-frost">Positionen im Schnitt</p>
+              <p class="mt-1 text-xs text-mist">Nach Content-Refresh &amp; FAQ</p>
+            </div>
+            <div
+              class="rounded-2xl border border-ink-700 bg-ink-900/50 p-6 text-center backdrop-blur-sm md:text-left"
+            >
+              <p class="font-display text-4xl font-semibold text-signal md:text-5xl">
+                3×
+              </p>
+              <p class="mt-2 text-sm font-medium text-frost">schnellere Priorisierung</p>
+              <p class="mt-1 text-xs text-mist">GSC-Daten statt Tabellen-Chaos</p>
+            </div>
+          </div>
+          <figure
+            class="rounded-2xl border border-ink-700/80 bg-ink-900/40 p-6 lg:col-span-12 lg:p-8"
+          >
+            <blockquote
+              class="font-display text-lg font-normal leading-relaxed text-frost/95 md:text-xl"
+            >
+              <p>
+                &ldquo;Wir haben aufgehört, blind neue Artikel zu produzieren. Jetzt optimieren wir
+                zuerst — und die Rankings zeigen es.&rdquo;
+              </p>
+            </blockquote>
+            <figcaption class="mt-4 text-sm text-mist">
+              — SEO-Redaktion, Finanzportal
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section
+      id="cta"
+      class="section-reveal border-t border-ink-700 bg-ink-900 py-20 md:py-28"
+      aria-labelledby="cta-heading"
+    >
+      <div class="mx-auto max-w-3xl px-4 text-center sm:px-6 md:px-8">
+        <h2
+          id="cta-heading"
+          class="font-display text-3xl font-semibold tracking-tight text-frost md:text-4xl"
+        >
+          Bereit, Bestandscontent systematisch zu stärken?
+        </h2>
+        <p class="mx-auto mt-4 max-w-lg text-mist">
+          Starte mit SEO Cockpit — GSC-Daten einlesen, priorisieren, analysieren und
+          konkrete SEO-Texte in Minuten statt Tagen vorbereiten.
+        </p>
+        <a
+          href="#cta"
+          class="mt-10 inline-flex min-h-[48px] min-w-[200px] items-center justify-center rounded-full bg-signal px-10 py-3.5 text-sm font-semibold text-ink-950 shadow-[0_0_48px_-10px_rgba(52,211,153,0.5)] transition hover:bg-signal-glow"
+          >Kostenlos starten</a
+        >
+        <p class="mt-6 text-xs text-mist/80">
+          Für Teams in Deutschland, Österreich und der Schweiz. DSGVO-konformes Hosting mit Vercel
+          &amp; Supabase möglich — Details im Produkt.
+        </p>
+      </div>
+    </section>
+
+    <footer class="border-t border-ink-800 bg-ink-950 py-12">
+      <div
+        class="mx-auto flex max-w-6xl flex-col gap-8 px-4 text-sm text-mist sm:px-6 md:px-8"
+      >
+        <div
+          class="flex flex-col items-start justify-between gap-6 border-b border-ink-800/80 pb-8 sm:flex-row sm:items-center"
+        >
+          <p class="font-display text-base font-medium text-frost/90">SEO Cockpit</p>
+          <nav class="flex flex-wrap gap-x-6 gap-y-2" aria-label="Rechtliches">
+            <a
+              href="impressum.html"
+              class="inline-flex min-h-[44px] items-center transition hover:text-frost"
+              >Impressum</a
+            >
+            <a
+              href="datenschutz.html"
+              class="inline-flex min-h-[44px] items-center transition hover:text-frost"
+              >Datenschutz</a
+            >
+          </nav>
+        </div>
+        <div
+          class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p>
+            &copy; <span id="y"></span> SEO Cockpit. Alle Rechte vorbehalten.
+          </p>
+          <p class="text-mist/90">Made in Germany</p>
+        </div>
+      </div>
+      <script src="nav.js" defer></script>
+    </footer>
+  </body>
+</html>

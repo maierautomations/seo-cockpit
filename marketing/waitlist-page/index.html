@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="SEO Cockpit startet bald — KI-gestützte Nachoptimierung für Redaktionen. Sichere dir den Early-Supporter-Preis von 19 €/Monat. Für immer."
+    />
+    <title>SEO Cockpit — Warteliste</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Lexend:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ["Fraunces", "Georgia", "serif"],
+              sans: ["Lexend", "system-ui", "sans-serif"],
+            },
+            colors: {
+              ink: {
+                950: "#07080b",
+                900: "#0c0e12",
+                800: "#12151c",
+                700: "#1a1e28",
+                600: "#252a36",
+              },
+              mist: "#94a3b8",
+              frost: "#e2e8f0",
+              signal: {
+                DEFAULT: "#34d399",
+                dim: "#059669",
+                glow: "#6ee7b7",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html {
+        background-color: #07080b;
+      }
+      .noise::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.035;
+        z-index: 50;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .hero-gradient {
+        background: radial-gradient(
+            ellipse 80% 50% at 50% -20%,
+            rgba(52, 211, 153, 0.15),
+            transparent 55%
+          ),
+          radial-gradient(
+            ellipse 60% 40% at 100% 0%,
+            rgba(5, 150, 105, 0.12),
+            transparent 50%
+          ),
+          #07080b;
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .reveal {
+        opacity: 0;
+        transform: translateY(18px);
+        animation: rise 0.8s ease-out forwards;
+      }
+      .reveal-d1 {
+        opacity: 0;
+        transform: translateY(18px);
+        animation: rise 0.8s ease-out 0.12s forwards;
+      }
+      .reveal-d2 {
+        opacity: 0;
+        transform: translateY(18px);
+        animation: rise 0.8s ease-out 0.24s forwards;
+      }
+      .reveal-d3 {
+        opacity: 0;
+        transform: translateY(18px);
+        animation: rise 0.85s ease-out 0.4s forwards;
+      }
+      .reveal-d4 {
+        opacity: 0;
+        transform: translateY(18px);
+        animation: rise 0.85s ease-out 0.55s forwards;
+      }
+      @keyframes pulse-ring {
+        0% {
+          box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.35);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(52, 211, 153, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+        }
+      }
+      .pulse-dot {
+        animation: pulse-ring 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      @keyframes check-in {
+        0% {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        60% {
+          transform: scale(1.15);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .check-anim {
+        animation: check-in 0.4s ease-out forwards;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .reveal,
+        .reveal-d1,
+        .reveal-d2,
+        .reveal-d3,
+        .reveal-d4 {
+          animation: none !important;
+          opacity: 1 !important;
+          transform: none !important;
+        }
+        .pulse-dot {
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="noise font-sans text-frost antialiased selection:bg-signal/30 selection:text-frost"
+  >
+    <div class="relative min-h-screen hero-gradient">
+      <!-- Grid background -->
+      <div
+        class="absolute left-1/2 top-0 h-[min(70vh,520px)] w-[min(100%,900px)] -translate-x-1/2 opacity-90"
+        style="
+          background: linear-gradient(
+              to bottom,
+              rgba(7, 8, 11, 0) 0%,
+              rgba(7, 8, 11, 0.85) 45%,
+              #07080b 100%
+            ),
+            linear-gradient(
+              rgba(52, 211, 153, 0.04) 1px,
+              transparent 1px
+            ),
+            linear-gradient(
+              90deg,
+              rgba(52, 211, 153, 0.04) 1px,
+              transparent 1px
+            );
+          background-size: 100% 100%, 48px 48px, 48px 48px;
+        "
+        aria-hidden="true"
+      ></div>
+
+      <!-- Header -->
+      <header class="relative z-10 mx-auto max-w-6xl px-6 py-6 md:px-8">
+        <a
+          href="../"
+          class="font-display text-lg font-semibold tracking-tight text-frost"
+          >SEO Cockpit</a
+        >
+      </header>
+
+      <!-- Main -->
+      <main
+        class="relative z-10 mx-auto flex max-w-2xl flex-col items-center px-6 pb-24 pt-8 text-center md:px-8 md:pt-16"
+      >
+        <!-- Badge -->
+        <p
+          class="reveal mb-8 inline-flex items-center gap-2 rounded-full border border-signal/20 bg-signal/5 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-signal-glow"
+        >
+          <span
+            class="pulse-dot inline-block h-2 w-2 rounded-full bg-signal"
+          ></span>
+          Launch Q2 2026
+        </p>
+
+        <!-- Headline -->
+        <h1
+          class="reveal-d1 font-display text-4xl font-semibold leading-tight tracking-tight text-frost md:text-5xl lg:text-[3.5rem]"
+        >
+          SEO Cockpit<br />
+          <span class="text-signal">startet bald</span>
+        </h1>
+
+        <!-- Subline -->
+        <p
+          class="reveal-d2 mx-auto mt-6 max-w-lg text-lg font-light leading-relaxed text-mist"
+        >
+          Die meisten Redaktionen produzieren neuen Content — und lassen 80 %
+          ihres bestehenden Potenzials liegen. SEO Cockpit findet die Artikel
+          mit dem größten Hebel und liefert Copy-Paste-fertige
+          Optimierungsvorschläge. KI-gestützt, in unter 2 Minuten.
+        </p>
+
+        <!-- Early Supporter Benefit -->
+        <div
+          class="reveal-d3 mt-10 w-full max-w-md rounded-2xl border border-signal/20 bg-signal/[0.04] px-6 py-5 backdrop-blur-sm"
+        >
+          <div class="flex items-center justify-center gap-3">
+            <span
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-signal/10"
+            >
+              <svg
+                class="h-5 w-5 text-signal"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"
+                />
+              </svg>
+            </span>
+            <div class="text-left">
+              <p class="text-sm font-semibold text-frost">
+                Early Supporter Preis:
+                <span class="text-signal">19 €/Monat</span>
+                <span class="ml-1 text-xs font-normal text-mist line-through"
+                  >29 €</span
+                >
+              </p>
+              <p class="mt-0.5 text-xs text-mist">
+                Gilt für immer, solange dein Abo aktiv bleibt. Nur die ersten
+                100 Plätze.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div class="reveal-d4 mt-8 w-full max-w-md" id="waitlist-wrapper">
+          <form
+            id="waitlist-form"
+            class="flex flex-col gap-3 sm:flex-row"
+            novalidate
+          >
+            <label for="email-input" class="sr-only"
+              >Deine E-Mail-Adresse</label
+            >
+            <input
+              id="email-input"
+              type="email"
+              name="email"
+              required
+              placeholder="deine@email.de"
+              autocomplete="email"
+              class="flex-1 rounded-full border border-ink-600 bg-ink-800/80 px-5 py-3.5 text-sm text-frost placeholder:text-mist/50 outline-none transition focus:border-signal/50 focus:ring-2 focus:ring-signal/20"
+            />
+            <button
+              type="submit"
+              class="shrink-0 rounded-full bg-signal px-7 py-3.5 text-sm font-semibold text-ink-950 shadow-[0_0_40px_-8px_rgba(52,211,153,0.55)] transition hover:bg-signal-glow active:scale-[0.97]"
+            >
+              Auf die Warteliste
+            </button>
+          </form>
+
+          <!-- Success state (hidden by default) -->
+          <div id="waitlist-success" class="hidden text-center">
+            <div
+              class="check-anim mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-signal/15"
+            >
+              <svg
+                class="h-7 w-7 text-signal"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
+              </svg>
+            </div>
+            <p class="mt-4 text-lg font-semibold text-frost">
+              Du bist dabei!
+            </p>
+            <p class="mt-2 text-sm text-mist">
+              Wir melden uns, sobald SEO Cockpit startet. Check dein Postfach
+              für die Bestätigung.
+            </p>
+          </div>
+
+          <!-- Error state (hidden by default) -->
+          <p
+            id="waitlist-error"
+            class="mt-3 hidden text-center text-sm text-red-400"
+          ></p>
+        </div>
+
+        <!-- Counter -->
+        <p class="reveal-d4 mt-6 text-sm text-mist">
+          <span class="font-semibold text-frost" id="supporter-count">47</span>
+          Early Supporters bereits auf der Warteliste
+        </p>
+
+        <!-- What you get -->
+        <div class="mt-16 w-full max-w-lg">
+          <h2
+            class="text-xs font-medium uppercase tracking-widest text-mist/70"
+          >
+            Was dich erwartet
+          </h2>
+          <div class="mt-6 grid gap-4 text-left sm:grid-cols-2">
+            <div
+              class="rounded-xl border border-ink-600/80 bg-ink-800/40 p-4 backdrop-blur-sm"
+            >
+              <div
+                class="flex h-8 w-8 items-center justify-center rounded-lg bg-signal/10 text-signal"
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0l-3.75-3.75M17.25 21L21 17.25"
+                  />
+                </svg>
+              </div>
+              <p class="mt-3 text-sm font-medium text-frost">
+                Automatische Priorisierung
+              </p>
+              <p class="mt-1 text-xs text-mist">
+                GSC-Daten hochladen, sofort sehen welche Artikel den größten
+                Hebel haben.
+              </p>
+            </div>
+            <div
+              class="rounded-xl border border-ink-600/80 bg-ink-800/40 p-4 backdrop-blur-sm"
+            >
+              <div
+                class="flex h-8 w-8 items-center justify-center rounded-lg bg-signal/10 text-signal"
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"
+                  />
+                </svg>
+              </div>
+              <p class="mt-3 text-sm font-medium text-frost">
+                KI-Diagnose pro Artikel
+              </p>
+              <p class="mt-1 text-xs text-mist">
+                Strukturcheck, Zahlen-Aktualität, Keyword-Abdeckung — in einem
+                Report.
+              </p>
+            </div>
+            <div
+              class="rounded-xl border border-ink-600/80 bg-ink-800/40 p-4 backdrop-blur-sm"
+            >
+              <div
+                class="flex h-8 w-8 items-center justify-center rounded-lg bg-signal/10 text-signal"
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"
+                  />
+                </svg>
+              </div>
+              <p class="mt-3 text-sm font-medium text-frost">
+                Copy-Paste-Vorschläge
+              </p>
+              <p class="mt-1 text-xs text-mist">
+                Titel, Meta-Description, FAQ-Blöcke — fertig zum Übernehmen.
+              </p>
+            </div>
+            <div
+              class="rounded-xl border border-ink-600/80 bg-ink-800/40 p-4 backdrop-blur-sm"
+            >
+              <div
+                class="flex h-8 w-8 items-center justify-center rounded-lg bg-signal/10 text-signal"
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
+                  />
+                </svg>
+              </div>
+              <p class="mt-3 text-sm font-medium text-frost">
+                Ab 19 €/Monat
+              </p>
+              <p class="mt-1 text-xs text-mist">
+                Kein Enterprise-Pricing. Gebaut für Redaktionen und Freelancer.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-20 text-center text-xs text-mist/50">
+          <p>
+            SEO Cockpit &mdash; Gebaut von
+            <a href="#" class="text-mist/70 transition hover:text-frost"
+              >Dominik M.</a
+            >
+          </p>
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      const form = document.getElementById("waitlist-form");
+      const emailInput = document.getElementById("email-input");
+      const successEl = document.getElementById("waitlist-success");
+      const errorEl = document.getElementById("waitlist-error");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        errorEl.classList.add("hidden");
+
+        const email = emailInput.value.trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          errorEl.textContent = "Bitte gib eine gültige E-Mail-Adresse ein.";
+          errorEl.classList.remove("hidden");
+          return;
+        }
+
+        // TODO: Replace with Formspree endpoint or Supabase insert
+        // Example Formspree: fetch('https://formspree.io/f/YOUR_FORM_ID', { ... })
+
+        // For now: show success state directly
+        form.classList.add("hidden");
+        successEl.classList.remove("hidden");
+
+        // Increment counter visually
+        var counter = document.getElementById("supporter-count");
+        counter.textContent = parseInt(counter.textContent, 10) + 1;
+      });
+    </script>
+  </body>
+</html>
