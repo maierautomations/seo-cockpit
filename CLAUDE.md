@@ -58,3 +58,16 @@ Backend: Supabase (PostgreSQL + Auth). KI: Claude API (Sonnet 4.6 / Opus 4.6).
 ## Framework Guidelines
 
 @AGENTS.md
+
+## Available Skills
+
+- frontend-design — use for all UI component creation (distinctive, production-grade design)
+- react-best-practices — follow for React/Next.js performance patterns
+- git-commit-helper — use for clean commit messages
+
+## Available MCPs
+
+- Firecrawl — use for article fetching/scraping instead of building custom scrapers
+- Perplexity — use for SERP analysis and web research
+- Context7 — use for up-to-date library/framework documentation lookups
+- Supabase — (coming later) for direct database operations
