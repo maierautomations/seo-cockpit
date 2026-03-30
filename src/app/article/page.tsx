@@ -1,28 +1,45 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, Suspense } from 'react';
+import { useEffect, useMemo, Suspense } from 'react';
 import { useSeoStore } from '@/lib/store';
 import { useArticleAnalysis } from '@/hooks/use-article-analysis';
 import { useSerpAnalysis } from '@/hooks/use-serp-analysis';
 import { Header } from '@/components/shared/header';
 import { AnalysisHeader } from '@/components/analysis/analysis-header';
+import { ArticleNav } from '@/components/analysis/article-nav';
+import { KeywordTable } from '@/components/analysis/keyword-table';
 import { StructureCheck } from '@/components/analysis/structure-check';
 import { SeoCheckComponent } from '@/components/analysis/seo-check';
 import { ContentCheck } from '@/components/analysis/content-check';
 import { AiSuggestions } from '@/components/analysis/ai-suggestions';
 import { SerpResultsPanel } from '@/components/serp/serp-results-panel';
+import { StatusSelect } from '@/components/shared/status-select';
+import { StatusBadge } from '@/components/shared/status-badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { Sparkles, Loader2, Search } from 'lucide-react';
+import { Sparkles, Loader2, Search, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 function ArticleContent() {
   const searchParams = useSearchParams();
   const url = searchParams.get('url') ?? '';
   const pages = useSeoStore((s) => s.pages);
+  const articleStatuses = useSeoStore((s) => s.articleStatuses);
+  const setArticleStatus = useSeoStore((s) => s.setArticleStatus);
   const page = pages.find((p) => p.url === url);
+
+  // Navigation: prev/next in scored list
+  const navInfo = useMemo(() => {
+    const idx = pages.findIndex((p) => p.url === url);
+    return {
+      currentIndex: idx,
+      total: pages.length,
+      prevUrl: idx > 0 ? pages[idx - 1].url : null,
+      nextUrl: idx < pages.length - 1 ? pages[idx + 1].url : null,
+    };
+  }, [pages, url]);
 
   const {
     activeAnalysis,
@@ -76,6 +93,15 @@ function ArticleContent() {
     }
   };
 
+  const handleMarkOptimized = () => {
+    if (!url) return;
+    setArticleStatus(url, 'optimiert');
+    toast.success('Artikel als optimiert markiert');
+  };
+
+  const currentStatus = articleStatuses[url]?.status ?? 'offen';
+  const currentStatusDate = articleStatuses[url]?.updatedAt;
+
   if (!page) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12 text-center">
@@ -88,6 +114,14 @@ function ArticleContent() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 md:px-8 py-8 space-y-8">
+      {/* Navigation */}
+      <ArticleNav
+        prevUrl={navInfo.prevUrl}
+        nextUrl={navInfo.nextUrl}
+        currentIndex={navInfo.currentIndex}
+        total={navInfo.total}
+      />
+
       {analysisLoading && !activeAnalysis ? (
         <div className="space-y-4">
           <Skeleton className="h-8 w-64" />
@@ -100,6 +134,11 @@ function ArticleContent() {
       ) : activeAnalysis ? (
         <>
           <AnalysisHeader analysis={activeAnalysis} page={page} />
+
+          {/* Keywords from GSC */}
+          {page.keywords.length > 0 && (
+            <KeywordTable keywords={page.keywords} />
+          )}
 
           {/* Structure + SEO checks (instant, pure logic) */}
           <div className="grid md:grid-cols-2 gap-4">
@@ -166,6 +205,43 @@ function ArticleContent() {
               <p className="text-sm text-red-400">{serpError}</p>
             </div>
           )}
+
+          {/* Status section at bottom */}
+          <Separator className="opacity-40" />
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">Status:</span>
+              <StatusSelect url={url} />
+              {currentStatus === 'optimiert' && currentStatusDate && (
+                <StatusBadge status="optimiert" updatedAt={currentStatusDate} />
+              )}
+            </div>
+
+            {currentStatus !== 'optimiert' ? (
+              <Button
+                onClick={handleMarkOptimized}
+                variant="outline"
+                size="sm"
+                className="gap-2 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/50"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Als optimiert markieren
+              </Button>
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-emerald-400">
+                <CheckCircle2 className="w-4 h-4" />
+                Optimiert
+              </div>
+            )}
+          </div>
+
+          {/* Bottom navigation */}
+          <ArticleNav
+            prevUrl={navInfo.prevUrl}
+            nextUrl={navInfo.nextUrl}
+            currentIndex={navInfo.currentIndex}
+            total={navInfo.total}
+          />
         </>
       ) : null}
     </div>

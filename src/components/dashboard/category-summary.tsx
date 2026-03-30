@@ -7,6 +7,8 @@ import type { CategoryId } from '@/types/scoring';
 
 interface CategorySummaryProps {
   pages: ScoredPage[];
+  activeCategories?: CategoryId[];
+  onCategoryClick?: (category: CategoryId) => void;
 }
 
 const CATEGORY_ORDER: CategoryId[] = [
@@ -23,7 +25,7 @@ const CATEGORY_COLORS: Record<CategoryId, string> = {
   'low-priority': 'bg-slate-500',
 };
 
-export function CategorySummary({ pages }: CategorySummaryProps) {
+export function CategorySummary({ pages, activeCategories, onCategoryClick }: CategorySummaryProps) {
   const counts = pages.reduce(
     (acc, page) => {
       acc[page.category] = (acc[page.category] ?? 0) + 1;
@@ -45,8 +47,17 @@ export function CategorySummary({ pages }: CategorySummaryProps) {
           const count = counts[id] ?? 0;
           const pct = total > 0 ? (count / total) * 100 : 0;
 
+          const isActive = activeCategories?.includes(id);
+          const isClickable = !!onCategoryClick;
+
           return (
-            <div key={id}>
+            <div
+              key={id}
+              onClick={() => onCategoryClick?.(id)}
+              className={`rounded-lg px-2 py-2 -mx-2 transition-colors ${
+                isClickable ? 'cursor-pointer hover:bg-secondary/50' : ''
+              } ${isActive ? 'bg-secondary/60 ring-1 ring-signal/20' : ''}`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2.5">
                   <span className="text-sm">{info.emoji}</span>

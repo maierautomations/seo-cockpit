@@ -45,7 +45,7 @@ export function UploadDialog({ open, onOpenChange }: UploadDialogProps) {
     async (file: File, type: CsvType) => {
       // Read file text for preview
       const text = await file.text();
-      const preview = previewCsv(text, 3);
+      const preview = previewCsv(text, 5);
 
       if (type === 'pages') {
         setPagePreview(preview);
@@ -121,7 +121,7 @@ export function UploadDialog({ open, onOpenChange }: UploadDialogProps) {
             disabled={!isReady}
             className="bg-signal text-background hover:bg-signal-glow font-medium"
           >
-            Analysieren
+            Analyse starten
           </Button>
         </div>
       </DialogContent>

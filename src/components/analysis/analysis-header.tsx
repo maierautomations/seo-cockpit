@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { CategoryBadge } from '@/components/shared/category-badge';
+import { Breadcrumb } from '@/components/shared/breadcrumb';
 import { formatNumber, formatPercent, formatDecimal } from '@/lib/format';
 import type { ArticleAnalysis } from '@/types/analysis';
 import type { ScoredPage } from '@/types/scoring';
@@ -15,10 +15,12 @@ interface AnalysisHeaderProps {
 export function AnalysisHeader({ analysis, page }: AnalysisHeaderProps) {
   return (
     <div className="space-y-4">
-      <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-signal transition-colors">
-        <ArrowLeft className="w-3.5 h-3.5" />
-        Zurück zum Dashboard
-      </Link>
+      <Breadcrumb
+        items={[
+          { label: 'Dashboard', href: '/' },
+          { label: analysis.title || 'Artikel-Analyse' },
+        ]}
+      />
 
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">

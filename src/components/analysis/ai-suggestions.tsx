@@ -104,14 +104,11 @@ export function AiSuggestions({ suggestions }: AiSuggestionsProps) {
             <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">
               Empfohlene Ergänzungen
             </p>
-            <ul className="space-y-1.5">
+            <div className="space-y-2">
               {suggestions.missingContent.map((item, i) => (
-                <li key={i} className="text-sm flex items-start gap-1.5">
-                  <span className="text-blue-500 shrink-0">→</span>
-                  {item}
-                </li>
+                <CopyBlock key={i} content={item} />
               ))}
-            </ul>
+            </div>
           </div>
         )}
       </CardContent>

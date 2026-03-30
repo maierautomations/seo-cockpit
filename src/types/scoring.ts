@@ -14,6 +14,14 @@ export interface CategoryInfo {
   description: string; // German description of recommended action
 }
 
+// Article optimization status tracking
+export type ArticleStatusId = 'offen' | 'in-bearbeitung' | 'optimiert' | 'ignoriert';
+
+export interface ArticleStatus {
+  status: ArticleStatusId;
+  updatedAt: string; // ISO timestamp
+}
+
 export interface ScoredPage {
   url: string;
   klicks: number;

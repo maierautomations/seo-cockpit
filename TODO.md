@@ -17,7 +17,7 @@
 - [x] use-csv-upload Hook (src/hooks/use-csv-upload.ts)
 - [x] CSV Upload Zone Komponente (Drag & Drop + File Picker)
 - [x] Upload Dialog Komponente (Modal-Wrapper)
-- [ ] CSV Preview Komponente (optionale Vorschau vor Analyse)
+- [x] CSV Preview auf 5 Zeilen erweitert, "Analyse starten" Button
 
 ## Modul 2: Scoring Engine
 
@@ -37,6 +37,21 @@
 - [x] Dashboard Shell (src/components/dashboard/dashboard-shell.tsx)
 - [x] Dashboard Page rewrite (src/app/page.tsx)
 
+## Modul 3b: Dashboard UX-Upgrade
+
+- [x] ArticleStatus Types + Zustand Store erweitert (articleStatuses, persistiert)
+- [x] DashboardFilters Type (src/types/dashboard.ts)
+- [x] Status-Konfiguration (src/lib/status-config.ts)
+- [x] Filter/Sort Utility (src/lib/filter-pages.ts)
+- [x] StatusBadge Komponente (src/components/shared/status-badge.tsx)
+- [x] StatusSelect Dropdown (src/components/shared/status-select.tsx)
+- [x] Breadcrumb Komponente (src/components/shared/breadcrumb.tsx)
+- [x] FilterBar Komponente (Kategorie, Impressions, Position, Status, Suche, Sortierung)
+- [x] Vollstandige Artikelliste mit Pagination (src/components/dashboard/article-list.tsx)
+- [x] Status-Ubersicht Zeile (src/components/dashboard/status-overview.tsx)
+- [x] Klickbare Kategorie-Verteilung (filtert die Liste)
+- [x] Dashboard Shell Integration (Top-10 + Alle Artikel + Filter)
+
 ## Modul 4: Artikel-Tiefenanalyse
 
 - [x] Fetch Article API Route (src/app/api/fetch-article/route.ts)
@@ -46,13 +61,16 @@
 - [x] Claude Client (src/lib/claude/client.ts)
 - [x] Claude Prompts (src/lib/claude/prompts.ts)
 - [x] use-article-analysis Hook (src/hooks/use-article-analysis.ts)
-- [x] Analysis Header Komponente
+- [x] Analysis Header Komponente (mit Breadcrumb)
 - [x] Structure Check Komponente
 - [x] SEO Check Komponente
 - [x] Content Check Komponente
-- [x] AI Suggestions Komponente
+- [x] AI Suggestions Komponente (mit CopyBlock pro Vorschlag)
 - [x] Copy Block Komponente (wiederverwendbar)
 - [x] Artikel Detail Page (src/app/article/page.tsx)
+- [x] Keyword-Kontext-Tabelle aus GSC (src/components/analysis/keyword-table.tsx)
+- [x] Prev/Next Artikel-Navigation (src/components/analysis/article-nav.tsx)
+- [x] "Als optimiert markieren" Button + Status-Dropdown
 
 ## Extras (Co-Founder Ideas)
 
@@ -80,6 +98,5 @@
 ## Phase 2: Weitere Module
 
 - [ ] Content-Briefing-Generator
-- [ ] CSV Preview mit Datenvorschau
 - [ ] Supabase Integration (Daten persistieren)
 - [ ] URL-Clustering / Keyword-Kannibalisierung

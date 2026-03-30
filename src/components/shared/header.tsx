@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Upload } from 'lucide-react';
 
@@ -10,10 +11,10 @@ interface HeaderProps {
 export function Header({ onUploadClick }: HeaderProps) {
   return (
     <header className="sticky top-0 z-[60] w-full border-b border-border/50 backdrop-blur-md bg-background/75">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-8">
-        <a href="/" className="font-semibold text-lg tracking-tight text-foreground">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-8">
+        <Link href="/" className="font-semibold text-lg tracking-tight text-foreground">
           SEO Cockpit
-        </a>
+        </Link>
         <Button
           variant="outline"
           size="sm"

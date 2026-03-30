@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { RawQueryRow, RawPageRow, DashboardOverview } from '@/types/gsc';
-import type { ScoredPage } from '@/types/scoring';
+import type { ScoredPage, ArticleStatusId, ArticleStatus } from '@/types/scoring';
 import type { CsvParseResult } from '@/types/csv';
 import type { ArticleAnalysis } from '@/types/analysis';
 
@@ -20,6 +20,10 @@ interface SeoStore {
   overview: DashboardOverview | null;
   setPages: (pages: ScoredPage[]) => void;
   setOverview: (overview: DashboardOverview) => void;
+
+  // Article status tracking (keyed by URL)
+  articleStatuses: Record<string, ArticleStatus>;
+  setArticleStatus: (url: string, status: ArticleStatusId) => void;
 
   // Article analysis
   activeAnalysis: ArticleAnalysis | null;
@@ -55,6 +59,16 @@ export const useSeoStore = create<SeoStore>()(
       setPages: (pages) => set({ pages }),
       setOverview: (overview) => set({ overview, lastUploadAt: new Date().toISOString() }),
 
+      // Article statuses
+      articleStatuses: {},
+      setArticleStatus: (url, status) =>
+        set((state) => ({
+          articleStatuses: {
+            ...state.articleStatuses,
+            [url]: { status, updatedAt: new Date().toISOString() },
+          },
+        })),
+
       // Analysis
       activeAnalysis: null,
       analysisLoading: false,
@@ -72,6 +86,7 @@ export const useSeoStore = create<SeoStore>()(
         pages: state.pages,
         overview: state.overview,
         lastUploadAt: state.lastUploadAt,
+        articleStatuses: state.articleStatuses,
       }),
     },
   ),

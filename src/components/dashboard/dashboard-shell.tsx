@@ -1,18 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSeoStore } from '@/lib/store';
+import { filterAndSortPages } from '@/lib/filter-pages';
+import { DEFAULT_FILTERS } from '@/types/dashboard';
 import { Header } from '@/components/shared/header';
 import { UploadDialog } from '@/components/upload/upload-dialog';
 import { KpiCards } from './kpi-cards';
 import { TopCandidates } from './top-candidates';
 import { CategorySummary } from './category-summary';
-import { FileUp, FileText, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { StatusOverview } from './status-overview';
+import { FilterBar } from './filter-bar';
+import { ArticleList } from './article-list';
+import { Separator } from '@/components/ui/separator';
+import { FileUp, FileText } from 'lucide-react';
+import type { DashboardFilters } from '@/types/dashboard';
+import type { CategoryId, ArticleStatusId } from '@/types/scoring';
 
 export function DashboardShell() {
   const [uploadOpen, setUploadOpen] = useState(false);
-  const { pages, overview, lastUploadAt } = useSeoStore();
+  const [filters, setFilters] = useState<DashboardFilters>(DEFAULT_FILTERS);
+  const { pages, overview, lastUploadAt, articleStatuses } = useSeoStore();
   const hasData = pages.length > 0 && overview !== null;
 
   // Keyboard shortcut: Cmd+U to open upload dialog
@@ -27,13 +35,56 @@ export function DashboardShell() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const handleFilterChange = useCallback((partial: Partial<DashboardFilters>) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...partial,
+      // Reset page when any filter changes (unless page itself is being set)
+      page: 'page' in partial ? (partial.page ?? 0) : 0,
+    }));
+  }, []);
+
+  // Category click from sidebar: toggle filter
+  const handleCategoryClick = useCallback((category: CategoryId) => {
+    setFilters((prev) => {
+      const has = prev.categories.includes(category);
+      return {
+        ...prev,
+        categories: has
+          ? prev.categories.filter((c) => c !== category)
+          : [...prev.categories, category],
+        page: 0,
+      };
+    });
+  }, []);
+
+  // Status click from overview: toggle filter
+  const handleStatusClick = useCallback((status: ArticleStatusId) => {
+    setFilters((prev) => {
+      const has = prev.statuses.includes(status);
+      return {
+        ...prev,
+        statuses: has
+          ? prev.statuses.filter((s) => s !== status)
+          : [...prev.statuses, status],
+        page: 0,
+      };
+    });
+  }, []);
+
+  // Filtered + sorted pages for the full list
+  const filteredPages = useMemo(
+    () => filterAndSortPages(pages, articleStatuses, filters),
+    [pages, articleStatuses, filters],
+  );
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header onUploadClick={() => setUploadOpen(true)} />
 
       <main className="flex-1">
         {hasData ? (
-          <div className="max-w-6xl mx-auto px-6 md:px-8 py-8 space-y-8">
+          <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 space-y-8">
             {lastUploadAt && (
               <p className="text-xs text-muted-foreground">
                 Letzte Analyse: {new Date(lastUploadAt).toLocaleString('de-DE')}
@@ -42,9 +93,38 @@ export function DashboardShell() {
 
             <KpiCards overview={overview} />
 
+            <StatusOverview
+              pages={pages}
+              articleStatuses={articleStatuses}
+              activeStatuses={filters.statuses}
+              onStatusClick={handleStatusClick}
+            />
+
             <div className="grid lg:grid-cols-[1fr_340px] gap-6">
               <TopCandidates pages={pages} />
-              <CategorySummary pages={pages} />
+              <CategorySummary
+                pages={pages}
+                activeCategories={filters.categories}
+                onCategoryClick={handleCategoryClick}
+              />
+            </div>
+
+            <Separator className="opacity-40" />
+
+            {/* Full article list with filters */}
+            <div className="space-y-4">
+              <h2 className="text-base font-semibold tracking-tight">Alle Artikel</h2>
+              <FilterBar
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                totalResults={filteredPages.length}
+                totalPages={pages.length}
+              />
+              <ArticleList
+                pages={filteredPages}
+                filters={filters}
+                onFilterChange={handleFilterChange}
+              />
             </div>
           </div>
         ) : (
