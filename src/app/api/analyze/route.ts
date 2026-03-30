@@ -125,7 +125,7 @@ async function runContentAnalysis(
   const truncatedContent = markdown.slice(0, 12000);
 
   const response = await claude.messages.create({
-    model: 'claude-sonnet-4-6-20250514',
+    model: 'claude-sonnet-4-6',
     max_tokens: 2000,
     messages: [
       {
@@ -170,7 +170,7 @@ async function runOptimizationSuggestions(
   });
 
   const response = await claude.messages.create({
-    model: 'claude-sonnet-4-6-20250514',
+    model: 'claude-sonnet-4-6',
     max_tokens: 2000,
     messages: [
       {

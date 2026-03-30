@@ -25,37 +25,44 @@ src/
 │   ├── article/page.tsx    # Article analysis detail view (?url=...)
 │   └── api/
 │       ├── analyze/        # POST: structure + SEO check + Claude API
-│       └── fetch-article/  # POST: Firecrawl or direct fetch → markdown
+│       ├── fetch-article/  # POST: Firecrawl or direct fetch → markdown
+│       └── serp-analysis/  # POST: ValueSERP API + Claude gap analysis
 ├── components/
 │   ├── ui/                 # shadcn/ui (button, card, badge, table, dialog, etc.)
 │   ├── shared/             # header, category-badge, score-bar
 │   ├── dashboard/          # kpi-cards, top-candidates, category-summary, dashboard-shell
 │   ├── upload/             # csv-upload-zone, upload-dialog
-│   └── analysis/           # analysis-header, structure-check, seo-check, content-check, ai-suggestions, copy-block
-├── hooks/                  # use-csv-upload, use-article-analysis
+│   ├── analysis/           # analysis-header, structure-check, seo-check, content-check, ai-suggestions, copy-block
+│   └── serp/               # serp-results-panel
+├── hooks/                  # use-csv-upload, use-article-analysis, use-serp-analysis
 ├── lib/
 │   ├── store.ts            # Zustand store (CSV data, scored pages, analysis)
 │   ├── format.ts           # German number formatting
 │   ├── csv/                # parser, validator, merger
 │   ├── scoring/            # benchmarks, categories, engine
 │   ├── analysis/           # structure-analyzer, seo-analyzer
-│   └── claude/             # client, prompts
-└── types/                  # gsc.ts, scoring.ts, analysis.ts, csv.ts
+│   ├── claude/             # client, prompts
+│   └── serp/               # client (ValueSERP, abstracted), analyzer
+└── types/                  # gsc.ts, scoring.ts, analysis.ts, csv.ts, serp.ts
 ```
 
-## Current State (Phase 1 MVP)
+## Current State (Phase 1 complete, Phase 2 in progress)
 
-### Implemented Modules
+### Phase 1 Modules (complete)
 1. **CSV-Upload & Parser** — Drag & drop, auto-detection (DE/EN headers, semicolon/tab/comma), German number parsing, BOM handling
 2. **Scoring Engine** — Weighted formula (40% impressions, 30% position, 20% CTR deviation, 10% keywords), 4 categories, potential estimation
 3. **Dashboard** — KPI cards, Top-10 candidates with score bars, category distribution, empty state with upload CTA
 4. **Article Deep Analysis** — Firecrawl + fallback fetch, structure check (H1/FAQ/infobox/tables), SEO check (meta/title/alt/links), Claude Sonnet 4.6 for content analysis + suggestions
+
+### Phase 2 Modules (in progress)
+5. **SERP-Konkurrenzanalyse** — ValueSERP API (abstracted client), title pattern analysis, topic coverage + gap analysis (Claude), featured snippet detection, "People Also Ask", integrated in article detail view
 
 ### Key Features
 - Progressive Disclosure: structure/SEO checks instant, AI analysis on button click
 - Session persistence via localStorage (Zustand persist middleware)
 - Copy-to-clipboard for all AI suggestions, "Copy Full Brief" for all-in-one
 - Keyboard shortcut Cmd+U for quick CSV upload
+- SERP client abstraction layer for easy provider swap
 
 ## Rules
 
@@ -81,12 +88,14 @@ src/
 - Scoring engine is pure logic (no LLM needed)
 - Claude API calls always go through /app/api/ to protect keys
 - Article fetching: Firecrawl HTTP API → markdown (fallback: direct fetch + regex HTML→markdown)
+- SERP fetching: abstracted client in src/lib/serp/client.ts, currently ValueSERP, swappable
 - State management: Zustand store with persist middleware, no prop drilling
 
 ## Environment Variables (.env.local)
 
 - `ANTHROPIC_API_KEY` — Required for AI analysis
 - `FIRECRAWL_API_KEY` — Optional, falls back to direct fetch
+- `VALUESERP_API_KEY` — Required for SERP analysis (Phase 2)
 
 ## Reference Documents
 

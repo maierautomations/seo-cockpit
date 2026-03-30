@@ -1,24 +1,62 @@
 import type { CsvValidationError, CsvType } from '@/types/csv';
 
-// Header aliases: canonical name → possible CSV column names (DE, EN, variations)
+// Header aliases: canonical name → possible CSV column names
+// GSC exports vary by language, version, and export method
 export const QUERY_HEADER_MAP: Record<string, string[]> = {
-  keyword: ['Suchanfrage', 'Top queries', 'Search query', 'Query', 'Keyword', 'Suchanfragen'],
+  keyword: [
+    'Häufigste Suchanfragen',
+    'Suchanfragen',
+    'Suchanfrage',
+    'Top queries',
+    'Search query',
+    'Queries',
+    'Query',
+    'Keyword',
+    'Keywords',
+  ],
   klicks: ['Klicks', 'Clicks', 'Klick'],
   impressionen: ['Impressionen', 'Impressions', 'Impression'],
-  ctr: ['CTR', 'Click-Through-Rate', 'Klickrate'],
-  position: ['Position', 'Durchschn. Position', 'Average position', 'Avg. position'],
+  ctr: ['CTR', 'Click-Through-Rate', 'Klickrate', 'Click Through Rate'],
+  position: [
+    'Position',
+    'Durchschn. Position',
+    'Durchschnittliche Position',
+    'Average position',
+    'Avg. position',
+    'Avg position',
+  ],
 };
 
 export const PAGE_HEADER_MAP: Record<string, string[]> = {
-  url: ['Seite', 'Page', 'URL', 'Seiten', 'Landing page', 'Top pages'],
+  url: [
+    'Die häufigsten Seiten',
+    'Seite',
+    'Seiten',
+    'Page',
+    'Pages',
+    'URL',
+    'URLs',
+    'Landing page',
+    'Landing pages',
+    'Top pages',
+    'Top-Seiten',
+  ],
   klicks: ['Klicks', 'Clicks', 'Klick'],
   impressionen: ['Impressionen', 'Impressions', 'Impression'],
-  ctr: ['CTR', 'Click-Through-Rate', 'Klickrate'],
-  position: ['Position', 'Durchschn. Position', 'Average position', 'Avg. position'],
+  ctr: ['CTR', 'Click-Through-Rate', 'Klickrate', 'Click Through Rate'],
+  position: [
+    'Position',
+    'Durchschn. Position',
+    'Durchschnittliche Position',
+    'Average position',
+    'Avg. position',
+    'Avg position',
+  ],
 };
 
+// Normalize: lowercase, trim, strip non-alpha (except umlauts)
 function normalizeHeader(header: string): string {
-  return header.trim().toLowerCase().replace(/[^a-zäöü]/g, '');
+  return header.trim().toLowerCase();
 }
 
 export function validateCsvHeaders(
@@ -31,7 +69,9 @@ export function validateCsvHeaders(
 
   for (const [canonicalName, aliases] of Object.entries(headerMap)) {
     const normalizedAliases = aliases.map(normalizeHeader);
-    const found = normalizedRaw.some((h) => normalizedAliases.includes(h));
+    const found = normalizedRaw.some((h) =>
+      normalizedAliases.some((alias) => h === alias || h.includes(alias)),
+    );
 
     if (!found) {
       const displayName = type === 'queries' && canonicalName === 'keyword'
@@ -42,7 +82,7 @@ export function validateCsvHeaders(
 
       errors.push({
         type: 'missing-column',
-        message: `Spalte "${displayName}" nicht gefunden. Erwartet: ${aliases.join(', ')}`,
+        message: `Spalte "${displayName}" nicht gefunden. Gefundene Spalten: ${rawHeaders.join(', ')}`,
         column: canonicalName,
       });
     }
