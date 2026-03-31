@@ -95,8 +95,32 @@
 - [x] Flow-Test bestanden (Parser, Scoring, Kategorien)
 - [ ] ValueSERP API Key eintragen und live testen
 
+## Phase 2: GSC API Integration
+
+- [x] NextAuth.js v5 Setup (Google OAuth, GSC readonly scope)
+- [x] Auth Types + Module Augmentation (src/types/auth.ts)
+- [x] GSC API Types (src/types/gsc-api.ts)
+- [x] Auth Config mit Token Refresh (src/lib/auth.ts)
+- [x] Auth Route Handler (src/app/api/auth/[...nextauth]/route.ts)
+- [x] SessionProvider Wrapper (src/components/gsc/session-provider.tsx)
+- [x] Layout mit AuthSessionProvider wrappen
+- [x] GSC API Client mit Pagination (src/lib/gsc/client.ts)
+- [x] GSC Transformer — API Rows → PageData[] (src/lib/gsc/transformer.ts)
+- [x] API Route: GSC Sites (src/app/api/gsc/sites/route.ts)
+- [x] API Route: GSC Data + Scoring (src/app/api/gsc/data/route.ts)
+- [x] Zustand Store: gscConnection State Slice
+- [x] use-gsc Hook (src/hooks/use-gsc.ts)
+- [x] GSC Connect Button (src/components/gsc/gsc-connect-button.tsx)
+- [x] Property Selector mit Datums-Presets (src/components/gsc/property-selector.tsx)
+- [x] GSC Status Banner (src/components/gsc/gsc-status-banner.tsx)
+- [x] Dashboard Empty State: GSC primary, CSV secondary
+- [x] Header: User Avatar, konditionaler Upload-Button
+- [x] Google Setup Anleitung (docs/google-setup.md)
+- [ ] Google Cloud Console Credentials eintragen und live testen
+- [ ] Produktions-Redirect-URI konfigurieren (Vercel)
+
 ## Phase 2: Weitere Module
 
-- [ ] Content-Briefing-Generator
+- [x] Content-Briefing-Generator
 - [ ] Supabase Integration (Daten persistieren)
 - [ ] URL-Clustering / Keyword-Kannibalisierung

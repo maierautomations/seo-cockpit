@@ -13,14 +13,19 @@ import { StatusOverview } from './status-overview';
 import { FilterBar } from './filter-bar';
 import { ArticleList } from './article-list';
 import { Separator } from '@/components/ui/separator';
-import { FileUp, FileText } from 'lucide-react';
+import { Upload } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { GscConnectButton } from '@/components/gsc/gsc-connect-button';
+import { PropertySelector } from '@/components/gsc/property-selector';
+import { GscStatusBanner } from '@/components/gsc/gsc-status-banner';
 import type { DashboardFilters } from '@/types/dashboard';
 import type { CategoryId, ArticleStatusId } from '@/types/scoring';
 
 export function DashboardShell() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [filters, setFilters] = useState<DashboardFilters>(DEFAULT_FILTERS);
-  const { pages, overview, lastUploadAt, articleStatuses } = useSeoStore();
+  const { pages, overview, lastUploadAt, articleStatuses, gscConnection } = useSeoStore();
+  const { data: session } = useSession();
   const hasData = pages.length > 0 && overview !== null;
 
   // Keyboard shortcut: Cmd+U to open upload dialog
@@ -85,10 +90,14 @@ export function DashboardShell() {
       <main className="flex-1">
         {hasData ? (
           <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 space-y-8">
-            {lastUploadAt && (
-              <p className="text-xs text-muted-foreground">
-                Letzte Analyse: {new Date(lastUploadAt).toLocaleString('de-DE')}
-              </p>
+            {gscConnection.dataSource === 'gsc' ? (
+              <GscStatusBanner />
+            ) : (
+              lastUploadAt && (
+                <p className="text-xs text-muted-foreground">
+                  Letzte Analyse: {new Date(lastUploadAt).toLocaleString('de-DE')}
+                </p>
+              )
             )}
 
             <KpiCards overview={overview} />
@@ -127,6 +136,33 @@ export function DashboardShell() {
               />
             </div>
           </div>
+        ) : session?.accessToken ? (
+          // Authenticated but no data yet: show property selector
+          <div className="hero-gradient min-h-[calc(100vh-65px)] flex items-center justify-center px-6">
+            <div className="max-w-2xl mx-auto text-center space-y-8">
+              <div>
+                <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-signal/20 bg-signal/5 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-signal">
+                  Google Search Console verbunden
+                </p>
+                <h1 className="text-2xl md:text-3xl font-semibold leading-tight tracking-tight text-foreground mb-3">
+                  Property und Zeitraum wählen
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Wähle eine Property und den Analysezeitraum, um deine Daten zu laden.
+                </p>
+              </div>
+
+              <PropertySelector />
+
+              {/* CSV fallback */}
+              <button
+                onClick={() => setUploadOpen(true)}
+                className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors underline underline-offset-4 decoration-border"
+              >
+                Oder CSV-Dateien hochladen
+              </button>
+            </div>
+          </div>
         ) : (
           <EmptyState onUpload={() => setUploadOpen(true)} />
         )}
@@ -143,7 +179,7 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
       <div className="max-w-2xl mx-auto text-center">
         {/* Badge */}
         <p className="mb-8 inline-flex items-center gap-2 rounded-full border border-signal/20 bg-signal/5 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-signal">
-          Phase 1 — Nachoptimierungs-Cockpit
+          SEO-Nachoptimierungs-Cockpit
         </p>
 
         {/* Headline */}
@@ -153,55 +189,33 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
         </h1>
 
         <p className="text-lg font-light leading-relaxed text-muted-foreground max-w-xl mx-auto mb-10">
-          Lade deine Google Search Console CSV-Daten hoch und erfahre in 30 Sekunden,
-          welche Artikel das grosste Optimierungspotenzial haben.
+          Verbinde deine Google Search Console und erfahre in 30 Sekunden,
+          welche Artikel das größte Optimierungspotenzial haben.
         </p>
 
-        {/* Upload zone */}
-        <button
-          onClick={onUpload}
-          className="group relative w-full max-w-lg mx-auto block rounded-2xl border-2 border-dashed border-border hover:border-signal/40 bg-card/50 hover:bg-card/80 transition-all duration-300 p-10 cursor-pointer"
-        >
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-signal/10 border border-signal/20 flex items-center justify-center group-hover:bg-signal/15 group-hover:border-signal/30 transition-all">
-              <FileUp className="w-7 h-7 text-signal" />
-            </div>
-            <div>
-              <p className="text-base font-medium text-foreground mb-1">
-                CSV-Dateien hochladen
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Ziehe deine Dateien hierher oder klicke zum Auswahlen
-              </p>
-            </div>
-          </div>
-        </button>
+        {/* Primary: GSC Connect */}
+        <GscConnectButton />
 
-        {/* CSV hint cards */}
-        <div className="grid sm:grid-cols-2 gap-3 max-w-lg mx-auto mt-6">
-          <div className="flex items-start gap-3 rounded-xl border border-border/60 bg-card/30 p-4 text-left">
-            <FileText className="w-4.5 h-4.5 text-signal/70 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-xs font-medium text-foreground">Seiten-CSV</p>
-              <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">
-                Seite, Klicks, Impressionen, CTR, Position
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 rounded-xl border border-border/60 bg-card/30 p-4 text-left">
-            <FileText className="w-4.5 h-4.5 text-signal/70 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-xs font-medium text-foreground">Suchanfragen-CSV</p>
-              <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">
-                Suchanfrage, Klicks, Impressionen, CTR, Position
-              </p>
-            </div>
-          </div>
+        {/* Divider */}
+        <div className="flex items-center gap-4 max-w-lg mx-auto my-8">
+          <div className="flex-1 h-px bg-border/50" />
+          <span className="text-xs text-muted-foreground/50 uppercase tracking-widest">oder</span>
+          <div className="flex-1 h-px bg-border/50" />
         </div>
 
+        {/* Secondary: CSV Upload */}
+        <button
+          onClick={onUpload}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Upload className="w-4 h-4" />
+          CSV-Dateien manuell hochladen
+        </button>
+
         {/* Shortcut hint */}
-        <p className="text-xs text-muted-foreground mt-8">
-          Tipp: <kbd className="px-1.5 py-0.5 rounded border border-border bg-secondary text-[11px] font-mono">Cmd+U</kbd> fur schnellen Upload
+        <p className="text-xs text-muted-foreground/50 mt-6">
+          <kbd className="px-1.5 py-0.5 rounded border border-border bg-secondary text-[11px] font-mono">Cmd+U</kbd>{' '}
+          für schnellen CSV-Upload
         </p>
       </div>
     </div>

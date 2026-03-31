@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Lexend } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthSessionProvider } from "@/components/gsc/session-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,9 +39,11 @@ export default function RootLayout({
       className={`${lexend.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col selection:bg-signal/30 selection:text-foreground">
-        <TooltipProvider delayDuration={300}>
-          {children}
-        </TooltipProvider>
+        <AuthSessionProvider>
+          <TooltipProvider delayDuration={300}>
+            {children}
+          </TooltipProvider>
+        </AuthSessionProvider>
         <Toaster richColors position="bottom-right" />
       </body>
     </html>

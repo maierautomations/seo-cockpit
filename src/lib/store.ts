@@ -6,6 +6,7 @@ import type { RawQueryRow, RawPageRow, DashboardOverview } from '@/types/gsc';
 import type { ScoredPage, ArticleStatusId, ArticleStatus } from '@/types/scoring';
 import type { CsvParseResult } from '@/types/csv';
 import type { ArticleAnalysis } from '@/types/analysis';
+import type { GscConnectionState } from '@/types/gsc-api';
 
 interface SeoStore {
   // CSV upload state
@@ -33,6 +34,11 @@ interface SeoStore {
 
   // Upload timestamp for session persistence
   lastUploadAt: string | null;
+
+  // GSC connection state
+  gscConnection: GscConnectionState;
+  setGscConnection: (connection: Partial<GscConnectionState>) => void;
+  disconnectGsc: () => void;
 }
 
 export const useSeoStore = create<SeoStore>()(
@@ -77,6 +83,31 @@ export const useSeoStore = create<SeoStore>()(
 
       // Timestamp
       lastUploadAt: null,
+
+      // GSC connection
+      gscConnection: {
+        property: null,
+        dateRange: null,
+        connectedAt: null,
+        dataSource: 'csv',
+      },
+      setGscConnection: (connection) =>
+        set((state) => ({
+          gscConnection: { ...state.gscConnection, ...connection },
+        })),
+      disconnectGsc: () =>
+        set({
+          gscConnection: {
+            property: null,
+            dateRange: null,
+            connectedAt: null,
+            dataSource: 'csv',
+          },
+          pages: [],
+          overview: null,
+          activeAnalysis: null,
+          lastUploadAt: null,
+        }),
     }),
     {
       name: 'seo-cockpit-store',
@@ -87,6 +118,7 @@ export const useSeoStore = create<SeoStore>()(
         overview: state.overview,
         lastUploadAt: state.lastUploadAt,
         articleStatuses: state.articleStatuses,
+        gscConnection: state.gscConnection,
       }),
     },
   ),

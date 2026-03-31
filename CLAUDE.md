@@ -1,13 +1,14 @@
 # SEO Cockpit
 
 Next.js App (App Router), TypeScript strict, Tailwind CSS, shadcn/ui.
-Backend: Supabase (PostgreSQL + Auth, Phase 3). KI: Claude API (Sonnet 4.6 / Opus 4.6).
+Auth: NextAuth.js v5 (Google OAuth, GSC readonly scope). Backend: Supabase (PostgreSQL, Phase 3). KI: Claude API (Sonnet 4.6 / Opus 4.6).
 
 ## Tech Stack
 
 - Framework: Next.js 16.2.1 (App Router, Server Components default, React Compiler enabled)
 - Styling: Tailwind CSS v4 (inline @theme) + shadcn/ui
 - State: Zustand (with localStorage persist)
+- Auth: NextAuth.js v5 (next-auth@beta, Google OAuth with GSC scope)
 - Database: Supabase (not yet connected — Phase 3)
 - API: Next.js API Routes (serverless)
 - AI: Anthropic Claude API (@anthropic-ai/sdk)
@@ -23,9 +24,15 @@ src/
 │   ├── layout.tsx          # Root layout (lang=de, Toaster, TooltipProvider)
 │   ├── page.tsx            # Dashboard (DashboardShell)
 │   ├── article/page.tsx    # Article analysis detail view (?url=...)
+│   ├── briefing/page.tsx   # Content briefing generator for new articles
 │   └── api/
 │       ├── analyze/        # POST: structure + SEO check + Claude API
+│       ├── auth/[...nextauth]/ # NextAuth.js route handler (Google OAuth)
+│       ├── briefing/       # POST: SERP fetch + Claude briefing generation
 │       ├── fetch-article/  # POST: Firecrawl or direct fetch → markdown
+│       ├── gsc/
+│       │   ├── sites/      # GET: list user's GSC properties
+│       │   └── data/       # POST: fetch search analytics, score, return ScoredPage[]
 │       └── serp-analysis/  # POST: ValueSERP API + Claude gap analysis
 ├── components/
 │   ├── ui/                 # shadcn/ui (button, card, badge, table, dialog, etc.)
@@ -33,22 +40,27 @@ src/
 │   ├── dashboard/          # kpi-cards, top-candidates, category-summary, dashboard-shell, filter-bar, article-list, status-overview
 │   ├── upload/             # csv-upload-zone, upload-dialog
 │   ├── analysis/           # analysis-header, structure-check, seo-check, content-check, ai-suggestions, copy-block, keyword-table, article-nav
+│   ├── briefing/           # briefing-input, briefing-progress, briefing-result, heading-structure-card, keyword-cluster-card, elements-card, faq-card, yoast-card, internal-links-card, serp-context-card
+│   ├── gsc/                # session-provider, gsc-connect-button, property-selector, gsc-status-banner
 │   └── serp/               # serp-results-panel
-├── hooks/                  # use-csv-upload, use-article-analysis, use-serp-analysis
+├── hooks/                  # use-csv-upload, use-article-analysis, use-serp-analysis, use-briefing, use-gsc
 ├── lib/
-│   ├── store.ts            # Zustand store (CSV data, scored pages, analysis, article statuses)
+│   ├── auth.ts             # NextAuth.js config (Google provider, token refresh)
+│   ├── store.ts            # Zustand store (CSV data, scored pages, analysis, article statuses, GSC connection)
 │   ├── format.ts           # German number formatting
 │   ├── filter-pages.ts     # Filter/sort utility for dashboard
 │   ├── status-config.ts    # Article status definitions (offen/in-bearbeitung/optimiert/ignoriert)
 │   ├── csv/                # parser, validator, merger
 │   ├── scoring/            # benchmarks, categories, engine
 │   ├── analysis/           # structure-analyzer, seo-analyzer
+│   ├── briefing/           # match-keywords, generate-prompt, to-markdown
 │   ├── claude/             # client, prompts
+│   ├── gsc/                # client (GSC API), transformer (API rows → PageData[])
 │   └── serp/               # client (ValueSERP, abstracted), analyzer
-└── types/                  # gsc.ts, scoring.ts, analysis.ts, csv.ts, serp.ts, dashboard.ts
+└── types/                  # gsc.ts, scoring.ts, analysis.ts, csv.ts, serp.ts, dashboard.ts, briefing.ts, auth.ts, gsc-api.ts
 ```
 
-## Current State (Phase 1 complete + Dashboard UX Upgrade, Phase 2 in progress)
+## Current State (Phase 1 complete, Phase 2 in progress, GSC API integration done)
 
 ### Phase 1 Modules (complete)
 1. **CSV-Upload & Parser** — Drag & drop, auto-detection (DE/EN headers, semicolon/tab/comma), German number parsing, BOM handling, 5-row preview
@@ -58,6 +70,8 @@ src/
 
 ### Phase 2 Modules (in progress)
 5. **SERP-Konkurrenzanalyse** — ValueSERP API (abstracted client), title pattern analysis, topic coverage + gap analysis (Claude), featured snippet detection, "People Also Ask", integrated in article detail view
+6. **Content-Briefing-Generator** — /briefing page, keyword input → GSC cluster matching + SERP analysis + Claude briefing, heading structure, recommended elements, FAQ, Yoast SEO fields, internal link suggestions, markdown export
+7. **GSC API Integration** — Google OAuth2 (NextAuth.js v5), Search Console API for direct data import, real keyword-to-URL mapping, property selector, date range picker, connected status banner, CSV fallback preserved
 
 ### Key Features
 - Progressive Disclosure: structure/SEO checks instant, AI analysis on button click
@@ -73,6 +87,15 @@ src/
 - Copy-to-clipboard for all AI suggestions, "Copy Full Brief" for all-in-one
 - Keyboard shortcut Cmd+U for quick CSV upload
 - SERP client abstraction layer for easy provider swap
+- Content briefing generator with SERP-based heading structure, FAQ, Yoast SEO fields
+- Briefing keyword cluster matching from GSC data (client-side, token-based)
+- Internal link suggestions from GSC data keyword overlap
+- Markdown export for briefings
+- Google OAuth2 with automatic token refresh (NextAuth.js v5)
+- GSC API import: real keyword-to-URL mapping via dimensions: ["query", "page"]
+- Property selector with date range presets (3/6/12 months)
+- Connected status banner with refresh/disconnect controls
+- CSV upload preserved as fallback data source
 
 ## Rules
 
@@ -100,7 +123,12 @@ src/
 - Claude model IDs: use `claude-sonnet-4-6` and `claude-opus-4-6` (no date suffix)
 - Article fetching: Firecrawl HTTP API → markdown (fallback: direct fetch + regex HTML→markdown)
 - SERP fetching: abstracted client in src/lib/serp/client.ts, currently ValueSERP, swappable
+- Auth: NextAuth.js v5, config in src/lib/auth.ts, JWT strategy with auto token refresh
+- GSC API: server-only client in src/lib/gsc/client.ts, transformer in src/lib/gsc/transformer.ts
+- GSC data flow: OAuth → /api/gsc/sites → /api/gsc/data → transformGscData() → scorePages() → store
+- Data sources: GSC API (primary, real keyword mapping) or CSV (fallback, estimated mapping)
 - State management: Zustand store with persist middleware, no prop drilling
+- GSC connection state: persisted in store (property, dateRange, connectedAt, dataSource)
 - Article statuses: persisted in store (keyed by URL), survive CSV re-uploads
 - Dashboard filters: ephemeral (useState in DashboardShell), reset on page reload
 - Filter/sort logic: pure function in src/lib/filter-pages.ts, used by dashboard shell
@@ -110,10 +138,14 @@ src/
 - `ANTHROPIC_API_KEY` — Required for AI analysis
 - `FIRECRAWL_API_KEY` — Optional, falls back to direct fetch
 - `VALUESERP_API_KEY` — Required for SERP analysis (Phase 2)
+- `GOOGLE_CLIENT_ID` — Required for GSC API (Google OAuth)
+- `GOOGLE_CLIENT_SECRET` — Required for GSC API (Google OAuth)
+- `AUTH_SECRET` — Required for NextAuth.js session encryption
 
 ## Reference Documents
 
 - @PRD.md — Full product requirements
+- docs/google-setup.md — Google Cloud Console setup guide for GSC OAuth
 
 ## Do Not Edit
 

@@ -9,7 +9,7 @@ import type {
 import { getClaudeClient } from '@/lib/claude/client';
 
 // Pure logic: analyze title patterns from SERP results
-function analyzeTitlePatterns(results: SerpApiResponse): TitlePattern[] {
+export function analyzeTitlePatterns(results: SerpApiResponse): TitlePattern[] {
   const titles = results.organicResults.map((r) => r.title);
   const total = titles.length;
   if (total === 0) return [];
@@ -62,7 +62,7 @@ function analyzeTitlePatterns(results: SerpApiResponse): TitlePattern[] {
 }
 
 // Determine featured snippet opportunity
-function analyzeFeaturedSnippet(
+export function analyzeFeaturedSnippet(
   results: SerpApiResponse,
   ownUrl?: string,
 ): FeaturedSnippetChance {
