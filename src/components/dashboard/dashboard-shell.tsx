@@ -18,14 +18,16 @@ import { useSession } from 'next-auth/react';
 import { GscConnectButton } from '@/components/gsc/gsc-connect-button';
 import { PropertySelector } from '@/components/gsc/property-selector';
 import { GscStatusBanner } from '@/components/gsc/gsc-status-banner';
+import { useSupabaseSync } from '@/hooks/use-supabase-sync';
 import type { DashboardFilters } from '@/types/dashboard';
 import type { CategoryId, ArticleStatusId } from '@/types/scoring';
 
 export function DashboardShell() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [filters, setFilters] = useState<DashboardFilters>(DEFAULT_FILTERS);
-  const { pages, overview, lastUploadAt, articleStatuses, gscConnection } = useSeoStore();
+  const { pages, overview, lastUploadAt, articleStatuses, gscConnection, isHydrated } = useSeoStore();
   const { data: session } = useSession();
+  const { isHydrating } = useSupabaseSync();
   const hasData = pages.length > 0 && overview !== null;
 
   // Keyboard shortcut: Cmd+U to open upload dialog
@@ -88,7 +90,14 @@ export function DashboardShell() {
       <Header onUploadClick={() => setUploadOpen(true)} />
 
       <main className="flex-1">
-        {hasData ? (
+        {isHydrating && !hasData ? (
+          <div className="min-h-[calc(100vh-65px)] flex items-center justify-center">
+            <div className="text-center space-y-3">
+              <div className="w-8 h-8 border-2 border-signal border-t-transparent rounded-full animate-spin mx-auto" />
+              <p className="text-sm text-muted-foreground">Lade gespeicherte Daten...</p>
+            </div>
+          </div>
+        ) : hasData ? (
           <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 space-y-8">
             {gscConnection.dataSource === 'gsc' ? (
               <GscStatusBanner />

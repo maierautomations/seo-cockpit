@@ -7,6 +7,8 @@ import {
 } from '@/lib/claude/prompts';
 import { analyzeStructure } from '@/lib/analysis/structure-analyzer';
 import { analyzeSeo } from '@/lib/analysis/seo-analyzer';
+import { getAuthenticatedUserId } from '@/lib/api-auth';
+import { createServiceClient } from '@/lib/supabase/server';
 import type {
   AnalyzeArticleRequest,
   AnalyzeArticleResponse,
@@ -93,6 +95,41 @@ export async function POST(request: Request) {
 
       analysis.content = contentResult;
       analysis.suggestions = suggestionsResult;
+
+      // Persist AI analysis to Supabase (non-blocking)
+      try {
+        const userId = await getAuthenticatedUserId();
+        if (userId) {
+          const supabase = createServiceClient();
+
+          // Look up page_id if it exists
+          const { data: pageRow } = await supabase
+            .from('pages')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('url', url)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+          await supabase
+            .from('article_analyses')
+            .upsert(
+              {
+                user_id: userId,
+                url,
+                page_id: pageRow?.id ?? null,
+                structure_check: JSON.parse(JSON.stringify(analysis.structure)),
+                seo_check: JSON.parse(JSON.stringify(analysis.seo)),
+                content_analysis: JSON.parse(JSON.stringify(contentResult)),
+                suggestions: JSON.parse(JSON.stringify(suggestionsResult)),
+              },
+              { onConflict: 'user_id,url' },
+            );
+        }
+      } catch (persistError) {
+        console.error('Failed to persist analysis to Supabase:', persistError);
+      }
     }
 
     return NextResponse.json<AnalyzeArticleResponse>({

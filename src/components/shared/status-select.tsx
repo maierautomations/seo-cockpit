@@ -24,12 +24,21 @@ const ICON_MAP = {
 interface StatusSelectProps {
   url: string;
   className?: string;
+  onStatusChange?: (url: string, status: ArticleStatusId) => void;
 }
 
-export function StatusSelect({ url, className }: StatusSelectProps) {
+export function StatusSelect({ url, className, onStatusChange }: StatusSelectProps) {
   const articleStatuses = useSeoStore((s) => s.articleStatuses);
   const setArticleStatus = useSeoStore((s) => s.setArticleStatus);
   const currentStatus: ArticleStatusId = articleStatuses[url]?.status ?? 'offen';
+
+  const handleChange = (statusId: ArticleStatusId) => {
+    if (onStatusChange) {
+      onStatusChange(url, statusId);
+    } else {
+      setArticleStatus(url, statusId);
+    }
+  };
 
   return (
     <DropdownMenu>
@@ -52,7 +61,7 @@ export function StatusSelect({ url, className }: StatusSelectProps) {
           return (
             <DropdownMenuItem
               key={statusId}
-              onClick={() => setArticleStatus(url, statusId)}
+              onClick={() => handleChange(statusId)}
               className={isActive ? 'bg-secondary/50' : ''}
             >
               <Icon className={`w-3.5 h-3.5 ${info.color}`} />

@@ -49,6 +49,17 @@ export function Header({ onUploadClick }: HeaderProps) {
               <FileText className="w-3.5 h-3.5" />
               Briefing
             </Link>
+            <Link
+              href="/briefings"
+              className={cn(
+                'px-3 py-1.5 rounded-md text-sm transition-colors',
+                pathname === '/briefings'
+                  ? 'text-foreground bg-secondary/60'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40',
+              )}
+            >
+              Briefings
+            </Link>
           </nav>
         </div>
 

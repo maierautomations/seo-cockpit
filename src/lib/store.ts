@@ -29,8 +29,11 @@ interface SeoStore {
   // Article analysis
   activeAnalysis: ArticleAnalysis | null;
   analysisLoading: boolean;
+  analysisFromCache: boolean;
+  analysisCachedAt: string | null;
   setActiveAnalysis: (analysis: ArticleAnalysis | null) => void;
   setAnalysisLoading: (loading: boolean) => void;
+  setAnalysisCache: (fromCache: boolean, cachedAt: string | null) => void;
 
   // Upload timestamp for session persistence
   lastUploadAt: string | null;
@@ -39,6 +42,18 @@ interface SeoStore {
   gscConnection: GscConnectionState;
   setGscConnection: (connection: Partial<GscConnectionState>) => void;
   disconnectGsc: () => void;
+
+  // Supabase sync state
+  currentImportId: string | null;
+  isHydrated: boolean;
+  setCurrentImportId: (id: string | null) => void;
+  setIsHydrated: (hydrated: boolean) => void;
+  hydrateFromSupabase: (data: {
+    pages: ScoredPage[];
+    overview: DashboardOverview;
+    articleStatuses: Record<string, ArticleStatus>;
+    importId: string | null;
+  }) => void;
 }
 
 export const useSeoStore = create<SeoStore>()(
@@ -78,8 +93,12 @@ export const useSeoStore = create<SeoStore>()(
       // Analysis
       activeAnalysis: null,
       analysisLoading: false,
+      analysisFromCache: false,
+      analysisCachedAt: null,
       setActiveAnalysis: (analysis) => set({ activeAnalysis: analysis }),
       setAnalysisLoading: (loading) => set({ analysisLoading: loading }),
+      setAnalysisCache: (fromCache, cachedAt) =>
+        set({ analysisFromCache: fromCache, analysisCachedAt: cachedAt }),
 
       // Timestamp
       lastUploadAt: null,
@@ -108,6 +127,21 @@ export const useSeoStore = create<SeoStore>()(
           activeAnalysis: null,
           lastUploadAt: null,
         }),
+
+      // Supabase sync
+      currentImportId: null,
+      isHydrated: false,
+      setCurrentImportId: (id) => set({ currentImportId: id }),
+      setIsHydrated: (hydrated) => set({ isHydrated: hydrated }),
+      hydrateFromSupabase: (data) =>
+        set({
+          pages: data.pages,
+          overview: data.overview,
+          articleStatuses: data.articleStatuses,
+          currentImportId: data.importId,
+          isHydrated: true,
+          lastUploadAt: new Date().toISOString(),
+        }),
     }),
     {
       name: 'seo-cockpit-store',
@@ -119,6 +153,7 @@ export const useSeoStore = create<SeoStore>()(
         lastUploadAt: state.lastUploadAt,
         articleStatuses: state.articleStatuses,
         gscConnection: state.gscConnection,
+        currentImportId: state.currentImportId,
       }),
     },
   ),

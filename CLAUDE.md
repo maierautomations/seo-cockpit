@@ -1,7 +1,7 @@
 # SEO Cockpit
 
 Next.js App (App Router), TypeScript strict, Tailwind CSS, shadcn/ui.
-Auth: NextAuth.js v5 (Google OAuth, GSC readonly scope). Backend: Supabase (PostgreSQL, Phase 3). KI: Claude API (Sonnet 4.6 / Opus 4.6).
+Auth: NextAuth.js v5 (Google OAuth, GSC readonly scope). Backend: Supabase (PostgreSQL, connected). KI: Claude API (Sonnet 4.6 / Opus 4.6).
 
 ## Tech Stack
 
@@ -9,7 +9,7 @@ Auth: NextAuth.js v5 (Google OAuth, GSC readonly scope). Backend: Supabase (Post
 - Styling: Tailwind CSS v4 (inline @theme) + shadcn/ui
 - State: Zustand (with localStorage persist)
 - Auth: NextAuth.js v5 (next-auth@beta, Google OAuth with GSC scope)
-- Database: Supabase (not yet connected — Phase 3)
+- Database: Supabase (PostgreSQL, connected — schema deployed, client ready)
 - API: Next.js API Routes (serverless)
 - AI: Anthropic Claude API (@anthropic-ai/sdk)
 - Article Fetch: Firecrawl HTTP API (with direct fetch fallback)
@@ -24,7 +24,8 @@ src/
 │   ├── layout.tsx          # Root layout (lang=de, Toaster, TooltipProvider)
 │   ├── page.tsx            # Dashboard (DashboardShell)
 │   ├── article/page.tsx    # Article analysis detail view (?url=...)
-│   ├── briefing/page.tsx   # Content briefing generator for new articles
+│   ├── briefing/page.tsx   # Content briefing generator (supports ?id= for saved)
+│   ├── briefings/page.tsx  # Saved briefings list
 │   └── api/
 │       ├── analyze/        # POST: structure + SEO check + Claude API
 │       ├── auth/[...nextauth]/ # NextAuth.js route handler (Google OAuth)
@@ -33,7 +34,13 @@ src/
 │       ├── gsc/
 │       │   ├── sites/      # GET: list user's GSC properties
 │       │   └── data/       # POST: fetch search analytics, score, return ScoredPage[]
-│       └── serp-analysis/  # POST: ValueSERP API + Claude gap analysis
+│       ├── serp-analysis/  # POST: ValueSERP API + Claude gap analysis
+│       └── supabase/
+│           ├── imports/    # POST: persist CSV import to Supabase
+│           ├── pages/      # GET: load pages from most recent import
+│           ├── analyses/   # GET: load cached article analysis
+│           ├── statuses/   # GET/POST: read/write article statuses
+│           └── briefings/  # GET: list/load saved briefings
 ├── components/
 │   ├── ui/                 # shadcn/ui (button, card, badge, table, dialog, etc.)
 │   ├── shared/             # header, category-badge, score-bar, status-badge, status-select, breadcrumb
@@ -43,7 +50,7 @@ src/
 │   ├── briefing/           # briefing-input, briefing-progress, briefing-result, heading-structure-card, keyword-cluster-card, elements-card, faq-card, yoast-card, internal-links-card, serp-context-card
 │   ├── gsc/                # session-provider, gsc-connect-button, property-selector, gsc-status-banner
 │   └── serp/               # serp-results-panel
-├── hooks/                  # use-csv-upload, use-article-analysis, use-serp-analysis, use-briefing, use-gsc
+├── hooks/                  # use-csv-upload, use-article-analysis, use-serp-analysis, use-briefing, use-gsc, use-supabase-sync
 ├── lib/
 │   ├── auth.ts             # NextAuth.js config (Google provider, token refresh)
 │   ├── store.ts            # Zustand store (CSV data, scored pages, analysis, article statuses, GSC connection)
@@ -56,11 +63,12 @@ src/
 │   ├── briefing/           # match-keywords, generate-prompt, to-markdown
 │   ├── claude/             # client, prompts
 │   ├── gsc/                # client (GSC API), transformer (API rows → PageData[])
-│   └── serp/               # client (ValueSERP, abstracted), analyzer
-└── types/                  # gsc.ts, scoring.ts, analysis.ts, csv.ts, serp.ts, dashboard.ts, briefing.ts, auth.ts, gsc-api.ts
+│   ├── serp/               # client (ValueSERP, abstracted), analyzer
+│   └── supabase/           # client.ts (browser), server.ts (service role), mappers.ts, persist-import.ts
+└── types/                  # gsc.ts, scoring.ts, analysis.ts, csv.ts, serp.ts, dashboard.ts, briefing.ts, auth.ts, gsc-api.ts, database.ts
 ```
 
-## Current State (Phase 1 complete, Phase 2 in progress, GSC API integration done)
+## Current State (Phase 1 complete, Phase 2 in progress, Phase 3 started)
 
 ### Phase 1 Modules (complete)
 1. **CSV-Upload & Parser** — Drag & drop, auto-detection (DE/EN headers, semicolon/tab/comma), German number parsing, BOM handling, 5-row preview
@@ -73,10 +81,15 @@ src/
 6. **Content-Briefing-Generator** — /briefing page, keyword input → GSC cluster matching + SERP analysis + Claude briefing, heading structure, recommended elements, FAQ, Yoast SEO fields, internal link suggestions, markdown export
 7. **GSC API Integration** — Google OAuth2 (NextAuth.js v5), Search Console API for direct data import, real keyword-to-URL mapping, property selector, date range picker, connected status banner, CSV fallback preserved
 
+### Phase 3 Modules (in progress)
+8. **Supabase Database** — Schema deployed (8 tables + migrations for url columns, nullable page_id, sub_scores JSONB). RLS enabled. TypeScript types generated. Dual-mode persistence: logged-in users read/write Supabase, anonymous users use localStorage. Profile auto-creation on first NextAuth login. GSC imports, pages, keywords, article analyses, article statuses, and briefings all persist to Supabase. Dashboard hydrates from Supabase on load. Article analysis caching with 7-day TTL + "Erneut analysieren" button. /briefings list page for saved briefings. Remaining: GSC token persistence in gsc_connections, auth migration evaluation.
+
 ### Key Features
 - Progressive Disclosure: structure/SEO checks instant, AI analysis on button click
-- Session persistence via localStorage (Zustand persist middleware)
-- Article status tracking (offen/in-bearbeitung/optimiert/ignoriert) persisted in localStorage
+- Dual-mode persistence: Supabase for logged-in users, localStorage for anonymous (Zustand persist middleware)
+- Article status tracking (offen/in-bearbeitung/optimiert/ignoriert) persisted in Supabase + localStorage
+- Article analysis caching: saved to Supabase, loaded from cache on revisit (7-day TTL, re-analyze button)
+- Briefing persistence: saved to Supabase, /briefings list page to browse saved briefings
 - Filter bar: category, impressions range, position range, status, text search (debounced), sortBy/sortDir
 - Full paginated article list (25/page) below Top-10 section
 - Clickable category distribution sidebar (filters the list)
@@ -132,6 +145,19 @@ src/
 - Article statuses: persisted in store (keyed by URL), survive CSV re-uploads
 - Dashboard filters: ephemeral (useState in DashboardShell), reset on page reload
 - Filter/sort logic: pure function in src/lib/filter-pages.ts, used by dashboard shell
+- Supabase: Browser client in src/lib/supabase/client.ts, service client in src/lib/supabase/server.ts
+- Supabase writes: Always via service role key in API routes (NextAuth session verifies user_id)
+- Supabase types: Auto-generated in src/types/database.ts (regenerate via MCP after schema changes)
+- Supabase project: seo_cockpit (ID: xbeyuwpudimffqcktcyp, region: eu-west-1)
+- Supabase dual-mode: Logged in → read/write Supabase (with localStorage as fast cache). Not logged in → localStorage only.
+- Supabase profile: Auto-created on first NextAuth login in JWT callback. UUID stored as `session.supabaseUserId`.
+- Supabase user ID helper: `getAuthenticatedUserId()` in src/lib/api-auth.ts, returns profile UUID or null
+- Supabase persistence: All API routes that modify data (analyze, briefing, gsc/data) auto-persist to Supabase if user is logged in (non-blocking)
+- Supabase hydration: `useSupabaseSync()` hook fetches pages + statuses from Supabase on dashboard mount if store is empty
+- Supabase mappers: src/lib/supabase/mappers.ts converts between DB columns (English) and app types (German field names)
+- Supabase analysis cache: 7-day TTL, "Erneut analysieren" button for fresh analysis
+- Supabase batch inserts: Chunked in groups of 500 rows (pages, keywords) to avoid payload limits
+- Supabase conflict resolution: Supabase data wins on login. If Supabase empty + localStorage has data → migrate to Supabase.
 
 ## Environment Variables (.env.local)
 
@@ -141,6 +167,9 @@ src/
 - `GOOGLE_CLIENT_ID` — Required for GSC API (Google OAuth)
 - `GOOGLE_CLIENT_SECRET` — Required for GSC API (Google OAuth)
 - `AUTH_SECRET` — Required for NextAuth.js session encryption
+- `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anonymous key (client-side)
+- `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server-side only, bypasses RLS)
 
 ## Reference Documents
 

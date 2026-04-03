@@ -16,10 +16,11 @@ import { AiSuggestions } from '@/components/analysis/ai-suggestions';
 import { SerpResultsPanel } from '@/components/serp/serp-results-panel';
 import { StatusSelect } from '@/components/shared/status-select';
 import { StatusBadge } from '@/components/shared/status-badge';
+import { useSupabaseSync } from '@/hooks/use-supabase-sync';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { Sparkles, Loader2, Search, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Loader2, Search, CheckCircle2, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 function ArticleContent() {
@@ -27,7 +28,9 @@ function ArticleContent() {
   const url = searchParams.get('url') ?? '';
   const pages = useSeoStore((s) => s.pages);
   const articleStatuses = useSeoStore((s) => s.articleStatuses);
-  const setArticleStatus = useSeoStore((s) => s.setArticleStatus);
+  const analysisFromCache = useSeoStore((s) => s.analysisFromCache);
+  const analysisCachedAt = useSeoStore((s) => s.analysisCachedAt);
+  const { syncArticleStatus } = useSupabaseSync();
   const page = pages.find((p) => p.url === url);
 
   // Navigation: prev/next in scored list
@@ -46,6 +49,7 @@ function ArticleContent() {
     analysisLoading,
     analyzeArticle,
     runAiAnalysis,
+    reanalyze,
   } = useArticleAnalysis();
 
   const {
@@ -95,7 +99,7 @@ function ArticleContent() {
 
   const handleMarkOptimized = () => {
     if (!url) return;
-    setArticleStatus(url, 'optimiert');
+    syncArticleStatus(url, 'optimiert');
     toast.success('Artikel als optimiert markiert');
   };
 
@@ -134,6 +138,38 @@ function ArticleContent() {
       ) : activeAnalysis ? (
         <>
           <AnalysisHeader analysis={activeAnalysis} page={page} />
+
+          {/* Cache indicator + re-analyze button */}
+          {analysisFromCache && analysisCachedAt && (
+            <div className="flex items-center justify-between rounded-lg border border-signal/20 bg-signal/5 px-4 py-2.5">
+              <p className="text-xs text-muted-foreground">
+                Gespeicherte Analyse vom{' '}
+                <span className="text-foreground font-medium">
+                  {new Date(analysisCachedAt).toLocaleDateString('de-DE', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                  })}
+                </span>
+              </p>
+              <Button
+                onClick={() => {
+                  if (page) reanalyze(page);
+                }}
+                disabled={analysisLoading}
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+              >
+                {analysisLoading ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-3 h-3" />
+                )}
+                Erneut analysieren
+              </Button>
+            </div>
+          )}
 
           {/* Keywords from GSC */}
           {page.keywords.length > 0 && (
@@ -211,7 +247,7 @@ function ArticleContent() {
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground">Status:</span>
-              <StatusSelect url={url} />
+              <StatusSelect url={url} onStatusChange={syncArticleStatus} />
               {currentStatus === 'optimiert' && currentStatusDate && (
                 <StatusBadge status="optimiert" updatedAt={currentStatusDate} />
               )}

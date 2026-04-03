@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
+import { createServiceClient } from '@/lib/supabase/server';
 import type {} from '@/types/auth';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -21,12 +22,44 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, account }) {
       if (account) {
         // First-time login — save tokens
-        return {
+        token = {
           ...token,
           access_token: account.access_token,
           expires_at: account.expires_at,
           refresh_token: account.refresh_token,
         };
+
+        // Upsert Supabase profile on login
+        try {
+          const supabase = createServiceClient();
+          const email = token.email as string;
+
+          const { data: existing } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('email', email)
+            .single();
+
+          if (existing) {
+            token.supabaseUserId = existing.id;
+          } else {
+            const { data: created } = await supabase
+              .from('profiles')
+              .insert({
+                id: crypto.randomUUID(),
+                email,
+                display_name: (token.name as string) ?? null,
+                avatar_url: (token.picture as string) ?? null,
+              })
+              .select('id')
+              .single();
+            token.supabaseUserId = created?.id;
+          }
+        } catch (error) {
+          console.error('Failed to upsert Supabase profile:', error);
+        }
+
+        return token;
       }
 
       // Token still valid
@@ -76,6 +109,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       session.accessToken = token.access_token;
       session.error = token.error;
+      session.supabaseUserId = token.supabaseUserId;
       return session;
     },
   },

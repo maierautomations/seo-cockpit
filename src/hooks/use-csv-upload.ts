@@ -64,7 +64,7 @@ export function useCsvUpload() {
     [setQueryCsv, setPageCsv],
   );
 
-  const computeScoring = useCallback(() => {
+  const computeScoring = useCallback(async () => {
     const store = useSeoStore.getState();
     const { queryCsv: qCsv, pageCsv: pCsv } = store;
 
@@ -77,6 +77,23 @@ export function useCsvUpload() {
 
     setPages(scored);
     setOverview(overview);
+
+    // Persist to Supabase if logged in (fire-and-forget)
+    try {
+      const res = await fetch('/api/supabase/imports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pages: scored, overview }),
+      });
+      if (res.ok) {
+        const { importId } = await res.json();
+        if (importId) {
+          useSeoStore.getState().setCurrentImportId(importId);
+        }
+      }
+    } catch {
+      // Silently fail — localStorage has the data
+    }
   }, [setPages, setOverview]);
 
   const hasPages = pageCsv?.success && pageCsv.data.length > 0;

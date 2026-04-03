@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getAuthenticatedUserId } from '@/lib/api-auth';
+import { createServiceClient } from '@/lib/supabase/server';
 import type {
   BriefingRequest,
   BriefingResponse,
@@ -181,10 +183,40 @@ export async function POST(request: Request) {
       },
     };
 
+    // Persist to Supabase (non-blocking)
+    let briefingId: string | null = null;
+    try {
+      const userId = await getAuthenticatedUserId();
+      if (userId) {
+        const supabase = createServiceClient();
+        const { data: inserted } = await supabase
+          .from('briefings')
+          .insert({
+            user_id: userId,
+            main_keyword: briefing.hauptkeyword,
+            secondary_keywords: briefing.nebenkeywords,
+            briefing_data: JSON.parse(JSON.stringify(briefing)),
+            serp_data: JSON.parse(JSON.stringify({
+              serpTopResults: briefing.serpTopResults,
+              titlePatterns: briefing.titlePatterns,
+              topicCoverage: briefing.topicCoverage,
+              peopleAlsoAsk: briefing.peopleAlsoAsk,
+              featuredSnippetChance: briefing.featuredSnippetChance,
+            })),
+          })
+          .select('id')
+          .single();
+        briefingId = inserted?.id ?? null;
+      }
+    } catch (persistError) {
+      console.error('Failed to persist briefing:', persistError);
+    }
+
     return NextResponse.json<BriefingResponse>({
       success: true,
       data: briefing,
-    });
+      briefingId,
+    } as BriefingResponse & { briefingId: string | null });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Unbekannter Fehler';

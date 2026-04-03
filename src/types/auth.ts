@@ -5,6 +5,7 @@ declare module 'next-auth' {
   interface Session {
     accessToken?: string;
     error?: 'RefreshTokenError';
+    supabaseUserId?: string;
   }
 }
 
@@ -14,5 +15,6 @@ declare module 'next-auth/jwt' {
     expires_at?: number;
     refresh_token?: string;
     error?: 'RefreshTokenError';
+    supabaseUserId?: string;
   }
 }

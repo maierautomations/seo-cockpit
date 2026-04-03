@@ -122,5 +122,60 @@
 ## Phase 2: Weitere Module
 
 - [x] Content-Briefing-Generator
-- [ ] Supabase Integration (Daten persistieren)
+- [x] Supabase Integration (Daten persistieren) → moved to Phase 3
 - [ ] URL-Clustering / Keyword-Kannibalisierung
+
+## Phase 3: Supabase Migration
+
+### Phase 3a: Schema + Client + Types (done)
+
+- [x] Supabase Projekt erstellt (seo_cockpit, eu-west-1, ID: xbeyuwpudimffqcktcyp)
+- [x] Database Schema — 8 Tabellen (profiles, gsc_connections, gsc_imports, pages, keywords, article_analyses, article_statuses, briefings)
+- [x] Row Level Security (RLS) auf allen Tabellen aktiviert
+- [x] Indexes erstellt (pages, keywords, article_analyses, article_statuses, gsc_imports, briefings)
+- [x] Triggers: Auto-create profile bei auth.users Insert, Auto-update updated_at
+- [x] @supabase/supabase-js + @supabase/ssr installiert
+- [x] TypeScript Database Types generiert (src/types/database.ts)
+- [x] Browser Client (src/lib/supabase/client.ts)
+- [x] Server Client mit Service Role Key (src/lib/supabase/server.ts)
+- [x] Schema-Migration: url Spalten + nullable page_id auf article_analyses/statuses, sub_scores JSONB auf pages
+- [x] profiles: FK zu auth.users entfernt (wir nutzen NextAuth), UUID-Default + unique email Index
+
+### Phase 3b: API Routes erweitern (done)
+
+- [x] POST /api/gsc/data — Nach GSC-Import: gsc_imports + pages + keywords in Supabase persistieren
+- [x] POST /api/analyze — Nach Analyse: article_analyses in Supabase speichern (upsert by user_id+url)
+- [x] POST /api/briefing — Nach Generierung: briefings in Supabase speichern
+- [x] CSV-Upload Hook — Nach Scoring: gsc_imports (source='csv') + pages + keywords persistieren
+- [x] Status-Update — article_statuses upsert bei Status-Änderung
+- [ ] GSC Connection — google_access_token + refresh_token in gsc_connections speichern
+- [x] API Auth Helper (src/lib/api-auth.ts) — getAuthenticatedUserId()
+- [x] DB/App Type Mappers (src/lib/supabase/mappers.ts) — clicks↔klicks, impressions↔impressionen
+- [x] Persist-Import Helper (src/lib/supabase/persist-import.ts) — Batch-Insert für pages + keywords
+- [x] 5 neue Supabase-API-Routes: /api/supabase/{imports,pages,analyses,statuses,briefings}
+
+### Phase 3c: Frontend-Hydration (done)
+
+- [x] Dashboard: Beim Laden von Supabase hydratieren, Store als Cache nutzen (use-supabase-sync Hook)
+- [x] Article Detail: Analyse-Ergebnisse aus Supabase laden falls vorhanden (7-Tage-Cache-TTL)
+- [x] "Erneut analysieren" Button bei gecachter Analyse
+- [x] Briefings: Gespeicherte Briefings auflisten und laden (/briefings Seite)
+- [x] Briefing-Detail: ?id=UUID zum Laden gespeicherter Briefings
+- [x] Status-Tracking: article_statuses aus Supabase statt localStorage (syncArticleStatus)
+- [x] Dual-Mode: Eingeloggt → Supabase, nicht eingeloggt → localStorage
+- [x] Conflict Resolution: Supabase wins on login, localStorage→Supabase Migration wenn Supabase leer
+- [x] Loading-Spinner während Supabase-Hydration
+- [x] "Briefings" Navigation im Header
+
+### Phase 3d: Auth-Umstellung (pending)
+
+- [x] Profile-Sync: Bei NextAuth Login User in profiles synchronisieren (JWT Callback)
+- [x] supabaseUserId in Session verfügbar
+- [ ] Evaluieren: NextAuth.js → Supabase Auth Migration (GSC Scope prüfen)
+- [ ] Token-Persistenz: GSC Tokens in gsc_connections statt Session
+
+### Phase 3e: localStorage ablösen (pending)
+
+- [ ] Zustand Store: persist middleware entfernen / auf Supabase-backed umstellen
+- [ ] Fallback-Logik: Offline-Modus oder localStorage als Cache beibehalten?
+- [ ] Cleanup: Alte localStorage-Daten bei Migration bereinigen

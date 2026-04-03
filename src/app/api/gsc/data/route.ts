@@ -4,6 +4,7 @@ import { fetchGscSearchAnalytics, GscApiError } from '@/lib/gsc/client';
 import { transformGscData } from '@/lib/gsc/transformer';
 import { scorePages } from '@/lib/scoring/engine';
 import { calculateOverview } from '@/lib/csv/merger';
+import { persistImport } from '@/lib/supabase/persist-import';
 
 interface GscDataRequest {
   siteUrl: string;
@@ -66,10 +67,29 @@ export async function POST(request: Request) {
     const totalKeywords = pageData.reduce((sum, p) => sum + p.keywordCount, 0);
     const overview = calculateOverview(pageData, totalKeywords);
 
+    // Persist to Supabase (non-blocking)
+    let importId: string | null = null;
+    if (session.supabaseUserId) {
+      try {
+        importId = await persistImport({
+          userId: session.supabaseUserId,
+          pages: scoredPages,
+          overview,
+          source: 'gsc',
+          propertyUrl: siteUrl,
+          dateRangeStart: startDate,
+          dateRangeEnd: endDate,
+        });
+      } catch (error) {
+        console.error('Supabase persist error (non-blocking):', error);
+      }
+    }
+
     return NextResponse.json({
       pages: scoredPages,
       overview,
       totalRows: rows.length,
+      importId,
     });
   } catch (error) {
     if (error instanceof GscApiError) {

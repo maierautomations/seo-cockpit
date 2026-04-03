@@ -104,11 +104,15 @@ export function useGsc() {
           pages: ScoredPage[];
           overview: DashboardOverview;
           totalRows: number;
+          importId: string | null;
         };
 
         setPages(data.pages);
         setOverview(data.overview);
         setTotalRows(data.totalRows);
+        if (data.importId) {
+          useSeoStore.getState().setCurrentImportId(data.importId);
+        }
         setGscConnection({
           property: siteUrl,
           dateRange: { startDate, endDate },
