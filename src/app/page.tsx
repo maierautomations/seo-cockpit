@@ -1,5 +1,6 @@
-import { DashboardShell } from '@/components/dashboard/dashboard-shell';
+import { redirect } from 'next/navigation';
 
-export default function DashboardPage() {
-  return <DashboardShell />;
+// Root page redirects to the static landing page
+export default function RootPage() {
+  redirect('/landing/index.html');
 }

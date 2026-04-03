@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/use-auth';
 import { Header } from '@/components/shared/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,12 +18,13 @@ interface BriefingListItem {
 }
 
 function BriefingsList() {
-  const { status } = useSession();
+  const { isLoggedIn, isLoading: authLoading } = useAuth();
   const [briefings, setBriefings] = useState<BriefingListItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status !== 'authenticated') {
+    if (authLoading) return;
+    if (!isLoggedIn) {
       setLoading(false);
       return;
     }
@@ -37,9 +38,9 @@ function BriefingsList() {
         // Silently fail
       })
       .finally(() => setLoading(false));
-  }, [status]);
+  }, [isLoggedIn, authLoading]);
 
-  if (status === 'unauthenticated') {
+  if (!authLoading && !isLoggedIn) {
     return (
       <div className="text-center py-16 space-y-4">
         <FileText className="w-12 h-12 text-muted-foreground/30 mx-auto" />

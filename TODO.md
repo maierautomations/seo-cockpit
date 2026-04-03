@@ -148,7 +148,7 @@
 - [x] POST /api/briefing — Nach Generierung: briefings in Supabase speichern
 - [x] CSV-Upload Hook — Nach Scoring: gsc_imports (source='csv') + pages + keywords persistieren
 - [x] Status-Update — article_statuses upsert bei Status-Änderung
-- [ ] GSC Connection — google_access_token + refresh_token in gsc_connections speichern
+- [x] GSC Connection — google_access_token + refresh_token in gsc_connections speichern (via NextAuth JWT callback)
 - [x] API Auth Helper (src/lib/api-auth.ts) — getAuthenticatedUserId()
 - [x] DB/App Type Mappers (src/lib/supabase/mappers.ts) — clicks↔klicks, impressions↔impressionen
 - [x] Persist-Import Helper (src/lib/supabase/persist-import.ts) — Batch-Insert für pages + keywords
@@ -167,12 +167,18 @@
 - [x] Loading-Spinner während Supabase-Hydration
 - [x] "Briefings" Navigation im Header
 
-### Phase 3d: Auth-Umstellung (pending)
+### Phase 3d: Auth-Umstellung (done)
 
-- [x] Profile-Sync: Bei NextAuth Login User in profiles synchronisieren (JWT Callback)
-- [x] supabaseUserId in Session verfügbar
-- [ ] Evaluieren: NextAuth.js → Supabase Auth Migration (GSC Scope prüfen)
-- [ ] Token-Persistenz: GSC Tokens in gsc_connections statt Session
+- [x] Profile-Sync: DB Trigger auto-creates profile on Supabase Auth signup (auth_user_id column)
+- [x] Supabase Auth: Google OAuth für User-Accounts (/login Seite)
+- [x] NextAuth nur noch für GSC API (webmasters.readonly scope only)
+- [x] Middleware: Route protection für /dashboard, /briefing(s), /article → /login Redirect
+- [x] SupabaseAuthProvider + useAuth() Hook ersetzen NextAuth useSession() für User-Identity
+- [x] getAuthenticatedUserId() nutzt jetzt Supabase Auth statt NextAuth
+- [x] Header: User-Avatar + Abmelden Button, "Anmelden" Button für nicht eingeloggte
+- [x] Demo-Modus: /dashboard?demo=true, localStorage only, Banner oben
+- [x] Landing Page: /landing/index.html "Kostenlos starten" → /login
+- [x] Token-Persistenz: GSC Tokens in gsc_connections via NextAuth JWT callback
 
 ### Phase 3e: localStorage ablösen (pending)
 

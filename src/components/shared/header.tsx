@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
-import { Upload, FileText } from 'lucide-react';
+import { Upload, FileText, LogIn, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSeoStore } from '@/lib/store';
 
@@ -14,7 +14,8 @@ interface HeaderProps {
 
 export function Header({ onUploadClick }: HeaderProps) {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const router = useRouter();
+  const { user, profile, isLoggedIn, isDemo, signOut } = useAuth();
   const { gscConnection } = useSeoStore();
   const isGscConnected = gscConnection.dataSource === 'gsc';
 
@@ -27,10 +28,10 @@ export function Header({ onUploadClick }: HeaderProps) {
           </Link>
           <nav className="flex items-center gap-1">
             <Link
-              href="/"
+              href="/dashboard"
               className={cn(
                 'px-3 py-1.5 rounded-md text-sm transition-colors',
-                pathname === '/'
+                pathname === '/dashboard'
                   ? 'text-foreground bg-secondary/60'
                   : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40',
               )}
@@ -79,14 +80,42 @@ export function Header({ onUploadClick }: HeaderProps) {
             </Button>
           )}
 
-          {/* User avatar when authenticated */}
-          {session?.user?.image && (
-            <img
-              src={session.user.image}
-              alt={session.user.name ?? 'User'}
-              title={session.user.name ?? session.user.email ?? undefined}
-              className="w-8 h-8 rounded-full ring-1 ring-border/60 hover:ring-signal/40 transition-all"
-            />
+          {/* User avatar + sign out when authenticated */}
+          {isLoggedIn && (
+            <div className="flex items-center gap-2">
+              {(profile?.avatar_url || user?.user_metadata?.avatar_url) && (
+                <img
+                  src={profile?.avatar_url ?? user?.user_metadata?.avatar_url}
+                  alt={profile?.display_name ?? 'User'}
+                  title={profile?.display_name ?? profile?.email ?? undefined}
+                  className="w-8 h-8 rounded-full ring-1 ring-border/60 hover:ring-signal/40 transition-all"
+                />
+              )}
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={async () => {
+                  await signOut();
+                  router.push('/login');
+                }}
+                title="Abmelden"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          )}
+
+          {/* Sign in button when not authenticated and not in demo mode */}
+          {!isLoggedIn && !isDemo && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/login')}
+              className="gap-2 rounded-full"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              Anmelden
+            </Button>
           )}
         </div>
       </div>

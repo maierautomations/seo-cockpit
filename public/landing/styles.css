@@ -1,0 +1,115 @@
+html {
+  background-color: #07080b;
+}
+.noise::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  z-index: 50;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.hero-gradient {
+  background: radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      rgba(52, 211, 153, 0.15),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 100% 0%,
+      rgba(5, 150, 105, 0.12),
+      transparent 50%
+    ),
+    #07080b;
+}
+.reveal {
+  opacity: 0;
+  animation: rise 0.8s ease-out forwards;
+}
+.reveal-delay-1 {
+  opacity: 0;
+  animation: rise 0.8s ease-out 0.12s forwards;
+}
+.reveal-delay-2 {
+  opacity: 0;
+  animation: rise 0.8s ease-out 0.24s forwards;
+}
+@keyframes rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal,
+.reveal-delay-1,
+.reveal-delay-2,
+.reveal-delay-3 {
+  transform: translateY(18px);
+}
+.reveal-delay-3 {
+  opacity: 0;
+  animation: rise 0.85s ease-out 0.4s forwards;
+}
+.section-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+.section-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .reveal,
+  .reveal-delay-1,
+  .reveal-delay-2,
+  .reveal-delay-3 {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+body.nav-open {
+  overflow: hidden;
+}
+#mobile-nav-panel:not(.is-open) {
+  pointer-events: none;
+  visibility: hidden;
+}
+#mobile-nav-panel.is-open {
+  pointer-events: auto;
+  visibility: visible;
+}
+#mobile-nav-panel:not(.is-open) .mobile-nav-backdrop {
+  opacity: 0;
+}
+#mobile-nav-panel.is-open .mobile-nav-backdrop {
+  opacity: 1;
+}
+#mobile-nav-panel:not(.is-open) .mobile-nav-sheet {
+  transform: translateX(100%);
+}
+#mobile-nav-panel.is-open .mobile-nav-sheet {
+  transform: translateX(0);
+}
+.mobile-nav-backdrop,
+.mobile-nav-sheet {
+  transition: opacity 0.25s ease, transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}

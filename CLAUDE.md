@@ -1,14 +1,15 @@
 # SEO Cockpit
 
 Next.js App (App Router), TypeScript strict, Tailwind CSS, shadcn/ui.
-Auth: NextAuth.js v5 (Google OAuth, GSC readonly scope). Backend: Supabase (PostgreSQL, connected). KI: Claude API (Sonnet 4.6 / Opus 4.6).
+Auth: Supabase Auth (Google OAuth for user accounts) + NextAuth.js v5 (GSC API only). Backend: Supabase (PostgreSQL, connected). KI: Claude API (Sonnet 4.6 / Opus 4.6).
 
 ## Tech Stack
 
 - Framework: Next.js 16.2.1 (App Router, Server Components default, React Compiler enabled)
 - Styling: Tailwind CSS v4 (inline @theme) + shadcn/ui
 - State: Zustand (with localStorage persist)
-- Auth: NextAuth.js v5 (next-auth@beta, Google OAuth with GSC scope)
+- Auth (User): Supabase Auth (Google OAuth provider) — login, session, route protection
+- Auth (GSC): NextAuth.js v5 (next-auth@beta, GSC readonly scope only)
 - Database: Supabase (PostgreSQL, connected — schema deployed, client ready)
 - API: Next.js API Routes (serverless)
 - AI: Anthropic Claude API (@anthropic-ai/sdk)
@@ -21,11 +22,14 @@ Auth: NextAuth.js v5 (Google OAuth, GSC readonly scope). Backend: Supabase (Post
 ```
 src/
 ├── app/                    # Pages, layouts, API routes
-│   ├── layout.tsx          # Root layout (lang=de, Toaster, TooltipProvider)
-│   ├── page.tsx            # Dashboard (DashboardShell)
-│   ├── article/page.tsx    # Article analysis detail view (?url=...)
-│   ├── briefing/page.tsx   # Content briefing generator (supports ?id= for saved)
-│   ├── briefings/page.tsx  # Saved briefings list
+│   ├── layout.tsx          # Root layout (lang=de, SupabaseAuthProvider, SessionProvider, Toaster)
+│   ├── page.tsx            # Root redirect → /landing/index.html
+│   ├── login/page.tsx      # Login page (Supabase Auth Google OAuth + demo mode link)
+│   ├── dashboard/page.tsx  # Dashboard (DashboardShell, protected route)
+│   ├── article/page.tsx    # Article analysis detail view (?url=..., protected)
+│   ├── briefing/page.tsx   # Content briefing generator (supports ?id= for saved, protected)
+│   ├── briefings/page.tsx  # Saved briefings list (protected)
+│   ├── auth/callback/      # Supabase Auth OAuth callback (exchanges code for session)
 │   └── api/
 │       ├── analyze/        # POST: structure + SEO check + Claude API
 │       ├── auth/[...nextauth]/ # NextAuth.js route handler (Google OAuth)
@@ -50,7 +54,7 @@ src/
 │   ├── briefing/           # briefing-input, briefing-progress, briefing-result, heading-structure-card, keyword-cluster-card, elements-card, faq-card, yoast-card, internal-links-card, serp-context-card
 │   ├── gsc/                # session-provider, gsc-connect-button, property-selector, gsc-status-banner
 │   └── serp/               # serp-results-panel
-├── hooks/                  # use-csv-upload, use-article-analysis, use-serp-analysis, use-briefing, use-gsc, use-supabase-sync
+├── hooks/                  # use-auth, use-csv-upload, use-article-analysis, use-serp-analysis, use-briefing, use-gsc, use-supabase-sync
 ├── lib/
 │   ├── auth.ts             # NextAuth.js config (Google provider, token refresh)
 │   ├── store.ts            # Zustand store (CSV data, scored pages, analysis, article statuses, GSC connection)
@@ -82,7 +86,8 @@ src/
 7. **GSC API Integration** — Google OAuth2 (NextAuth.js v5), Search Console API for direct data import, real keyword-to-URL mapping, property selector, date range picker, connected status banner, CSV fallback preserved
 
 ### Phase 3 Modules (in progress)
-8. **Supabase Database** — Schema deployed (8 tables + migrations for url columns, nullable page_id, sub_scores JSONB). RLS enabled. TypeScript types generated. Dual-mode persistence: logged-in users read/write Supabase, anonymous users use localStorage. Profile auto-creation on first NextAuth login. GSC imports, pages, keywords, article analyses, article statuses, and briefings all persist to Supabase. Dashboard hydrates from Supabase on load. Article analysis caching with 7-day TTL + "Erneut analysieren" button. /briefings list page for saved briefings. Remaining: GSC token persistence in gsc_connections, auth migration evaluation.
+8. **Supabase Database** — Schema deployed (8 tables + migrations). RLS enabled. TypeScript types generated. Dual-mode persistence: logged-in users read/write Supabase, demo/anonymous users use localStorage.
+9. **Supabase Auth** — Google OAuth for user accounts. Login page at /login. Route protection via Next.js middleware. Profile auto-created via DB trigger on signup. Demo mode at /dashboard?demo=true (localStorage only, banner shown). NextAuth stripped to GSC-only OAuth. GSC tokens persisted to gsc_connections table.
 
 ### Key Features
 - Progressive Disclosure: structure/SEO checks instant, AI analysis on button click
@@ -136,7 +141,15 @@ src/
 - Claude model IDs: use `claude-sonnet-4-6` and `claude-opus-4-6` (no date suffix)
 - Article fetching: Firecrawl HTTP API → markdown (fallback: direct fetch + regex HTML→markdown)
 - SERP fetching: abstracted client in src/lib/serp/client.ts, currently ValueSERP, swappable
-- Auth: NextAuth.js v5, config in src/lib/auth.ts, JWT strategy with auto token refresh
+- Auth (User): Supabase Auth with Google provider, middleware route protection in src/middleware.ts
+- Auth (GSC): NextAuth.js v5, config in src/lib/auth.ts, JWT strategy with auto token refresh, GSC-only scope
+- Auth provider: SupabaseAuthProvider in src/components/providers/supabase-auth-provider.tsx, useAuth() hook
+- Auth helper: getAuthenticatedUserId() in src/lib/api-auth.ts uses Supabase Auth (not NextAuth)
+- Route protection: Next.js middleware redirects unauthenticated users from /dashboard, /briefing(s), /article to /login
+- Demo mode: /dashboard?demo=true bypasses auth, data in localStorage only, DemoBanner shown
+- Login: /login page with Supabase OAuth + "Ohne Account testen" link
+- Landing page: Static HTML at /landing/index.html (served via public/landing/), "Kostenlos starten" → /login
+- Profile sync: DB trigger auto-creates profile on Supabase Auth signup (auth_user_id column links to auth.users)
 - GSC API: server-only client in src/lib/gsc/client.ts, transformer in src/lib/gsc/transformer.ts
 - GSC data flow: OAuth → /api/gsc/sites → /api/gsc/data → transformGscData() → scorePages() → store
 - Data sources: GSC API (primary, real keyword mapping) or CSV (fallback, estimated mapping)
@@ -150,8 +163,8 @@ src/
 - Supabase types: Auto-generated in src/types/database.ts (regenerate via MCP after schema changes)
 - Supabase project: seo_cockpit (ID: xbeyuwpudimffqcktcyp, region: eu-west-1)
 - Supabase dual-mode: Logged in → read/write Supabase (with localStorage as fast cache). Not logged in → localStorage only.
-- Supabase profile: Auto-created on first NextAuth login in JWT callback. UUID stored as `session.supabaseUserId`.
-- Supabase user ID helper: `getAuthenticatedUserId()` in src/lib/api-auth.ts, returns profile UUID or null
+- Supabase profile: Auto-created via DB trigger on Supabase Auth signup. `auth_user_id` links to `auth.users.id`.
+- Supabase user ID helper: `getAuthenticatedUserId()` in src/lib/api-auth.ts, uses Supabase Auth session → profile lookup, returns profile UUID or null
 - Supabase persistence: All API routes that modify data (analyze, briefing, gsc/data) auto-persist to Supabase if user is logged in (non-blocking)
 - Supabase hydration: `useSupabaseSync()` hook fetches pages + statuses from Supabase on dashboard mount if store is empty
 - Supabase mappers: src/lib/supabase/mappers.ts converts between DB columns (English) and app types (German field names)

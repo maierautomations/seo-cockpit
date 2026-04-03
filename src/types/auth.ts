@@ -1,11 +1,12 @@
 import 'next-auth';
 import 'next-auth/jwt';
 
+// NextAuth types — GSC-only OAuth flow.
+// User authentication is handled by Supabase Auth.
 declare module 'next-auth' {
   interface Session {
     accessToken?: string;
     error?: 'RefreshTokenError';
-    supabaseUserId?: string;
   }
 }
 
@@ -15,6 +16,6 @@ declare module 'next-auth/jwt' {
     expires_at?: number;
     refresh_token?: string;
     error?: 'RefreshTokenError';
-    supabaseUserId?: string;
+    gscProfileId?: string;
   }
 }

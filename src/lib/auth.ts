@@ -1,8 +1,11 @@
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
+import { cookies } from 'next/headers';
 import { createServiceClient } from '@/lib/supabase/server';
 import type {} from '@/types/auth';
 
+// NextAuth is now ONLY used for the GSC API OAuth flow.
+// User authentication is handled by Supabase Auth.
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Google({
@@ -13,7 +16,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           access_type: 'offline',
           prompt: 'consent',
           scope:
-            'openid email profile https://www.googleapis.com/auth/webmasters.readonly',
+            'https://www.googleapis.com/auth/webmasters.readonly',
         },
       },
     }),
@@ -21,7 +24,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
-        // First-time login — save tokens
+        // First GSC connection — save tokens
         token = {
           ...token,
           access_token: account.access_token,
@@ -29,34 +32,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           refresh_token: account.refresh_token,
         };
 
-        // Upsert Supabase profile on login
+        // Persist GSC tokens to gsc_connections table
         try {
           const supabase = createServiceClient();
-          const email = token.email as string;
-
-          const { data: existing } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('email', email)
-            .single();
-
-          if (existing) {
-            token.supabaseUserId = existing.id;
-          } else {
-            const { data: created } = await supabase
-              .from('profiles')
-              .insert({
-                id: crypto.randomUUID(),
-                email,
-                display_name: (token.name as string) ?? null,
-                avatar_url: (token.picture as string) ?? null,
-              })
-              .select('id')
-              .single();
-            token.supabaseUserId = created?.id;
+          // Read the profile UUID from the cookie set by GscConnectButton
+          const cookieStore = await cookies();
+          const profileId = cookieStore.get('gsc_profile_id')?.value;
+          token.gscProfileId = profileId;
+          if (profileId && account.access_token && account.refresh_token) {
+            await supabase.from('gsc_connections').upsert(
+              {
+                user_id: profileId,
+                google_access_token: account.access_token,
+                google_refresh_token: account.refresh_token,
+              },
+              { onConflict: 'user_id' },
+            );
           }
         } catch (error) {
-          console.error('Failed to upsert Supabase profile:', error);
+          console.error('Failed to persist GSC tokens:', error);
         }
 
         return token;
@@ -94,12 +88,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           refresh_token?: string;
         };
 
-        return {
+        const refreshedToken = {
           ...token,
           access_token: newTokens.access_token,
           expires_at: Math.floor(Date.now() / 1000 + newTokens.expires_in),
           refresh_token: newTokens.refresh_token ?? token.refresh_token,
         };
+
+        // Update gsc_connections with refreshed tokens
+        try {
+          const profileId = token.gscProfileId as string | undefined;
+          if (profileId) {
+            const supabase = createServiceClient();
+            await supabase
+              .from('gsc_connections')
+              .update({
+                google_access_token: newTokens.access_token,
+                ...(newTokens.refresh_token
+                  ? { google_refresh_token: newTokens.refresh_token }
+                  : {}),
+              })
+              .eq('user_id', profileId);
+          }
+        } catch {
+          // Non-critical — tokens are still in JWT
+        }
+
+        return refreshedToken;
       } catch (error) {
         console.error('Error refreshing access_token', error);
         token.error = 'RefreshTokenError';
@@ -109,7 +124,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       session.accessToken = token.access_token;
       session.error = token.error;
-      session.supabaseUserId = token.supabaseUserId;
       return session;
     },
   },

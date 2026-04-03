@@ -3,13 +3,18 @@
 import { signIn } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
 
 export function GscConnectButton() {
   const [loading, setLoading] = useState(false);
+  const { isLoggedIn, profile } = useAuth();
 
   function handleConnect() {
+    if (!isLoggedIn || !profile) return;
     setLoading(true);
-    signIn('google', { callbackUrl: '/' });
+    // Pass profile UUID to NextAuth so the JWT callback can persist GSC tokens
+    document.cookie = `gsc_profile_id=${profile.id}; path=/; max-age=600; samesite=lax`;
+    signIn('google', { callbackUrl: '/dashboard' });
   }
 
   return (

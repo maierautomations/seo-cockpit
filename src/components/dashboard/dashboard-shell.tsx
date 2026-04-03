@@ -15,10 +15,12 @@ import { ArticleList } from './article-list';
 import { Separator } from '@/components/ui/separator';
 import { Upload } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/use-auth';
 import { GscConnectButton } from '@/components/gsc/gsc-connect-button';
 import { PropertySelector } from '@/components/gsc/property-selector';
 import { GscStatusBanner } from '@/components/gsc/gsc-status-banner';
 import { useSupabaseSync } from '@/hooks/use-supabase-sync';
+import { DemoBanner } from '@/components/shared/demo-banner';
 import type { DashboardFilters } from '@/types/dashboard';
 import type { CategoryId, ArticleStatusId } from '@/types/scoring';
 
@@ -26,7 +28,8 @@ export function DashboardShell() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [filters, setFilters] = useState<DashboardFilters>(DEFAULT_FILTERS);
   const { pages, overview, lastUploadAt, articleStatuses, gscConnection, isHydrated } = useSeoStore();
-  const { data: session } = useSession();
+  const { data: session } = useSession(); // NextAuth session — for GSC access token only
+  const { isLoggedIn: isSupabaseLoggedIn, isDemo } = useAuth();
   const { isHydrating } = useSupabaseSync();
   const hasData = pages.length > 0 && overview !== null;
 
@@ -88,6 +91,7 @@ export function DashboardShell() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header onUploadClick={() => setUploadOpen(true)} />
+      {isDemo && <DemoBanner />}
 
       <main className="flex-1">
         {isHydrating && !hasData ? (
@@ -145,8 +149,8 @@ export function DashboardShell() {
               />
             </div>
           </div>
-        ) : session?.accessToken ? (
-          // Authenticated but no data yet: show property selector
+        ) : isSupabaseLoggedIn && session?.accessToken ? (
+          // Logged in + GSC connected but no data yet: show property selector
           <div className="hero-gradient min-h-[calc(100vh-65px)] flex items-center justify-center px-6">
             <div className="max-w-2xl mx-auto text-center space-y-8">
               <div>

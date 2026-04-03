@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/use-auth';
 import { useSeoStore } from '@/lib/store';
 import type {
   FetchArticleResponse,
@@ -32,8 +32,7 @@ export function useArticleAnalysis() {
     setAnalysisLoading,
     setAnalysisCache,
   } = useSeoStore();
-  const { data: session } = useSession();
-  const isLoggedIn = !!session?.supabaseUserId;
+  const { isLoggedIn } = useAuth();
 
   // Check Supabase for a cached analysis
   const checkCache = useCallback(

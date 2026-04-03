@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Impressum — SEO Cockpit</title>
+    <meta
+      name="description"
+      content="Impressum und Anbieterkennzeichnung für SEO Cockpit."
+    />
+    <link rel="canonical" href="https://example.com/landing/impressum.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700&family=Lexend:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ["Fraunces", "Georgia", "serif"],
+              sans: ["Lexend", "system-ui", "sans-serif"],
+            },
+            colors: {
+              ink: {
+                950: "#07080b",
+                900: "#0c0e12",
+                800: "#12151c",
+                700: "#1a1e28",
+                600: "#252a36",
+              },
+              mist: "#94a3b8",
+              frost: "#e2e8f0",
+              signal: { DEFAULT: "#34d399", dim: "#059669", glow: "#6ee7b7" },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="noise font-sans text-frost antialiased selection:bg-signal/30 selection:text-frost">
+    <header
+      class="sticky top-0 z-[60] w-full border-b border-transparent backdrop-blur-md transition-[border-color,background-color,box-shadow] duration-300 supports-[backdrop-filter]:bg-ink-950/75 bg-ink-950/92"
+      id="site-header"
+    >
+      <div
+        class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-8 md:py-5"
+      >
+        <a
+          href="index.html"
+          class="font-display flex min-h-[44px] min-w-[44px] items-center text-lg font-semibold tracking-tight text-frost"
+          >SEO Cockpit</a
+        >
+        <nav
+          class="hidden items-center gap-6 text-sm text-mist md:flex md:gap-8"
+          aria-label="Hauptnavigation"
+        >
+          <a class="inline-flex min-h-[44px] items-center transition hover:text-frost" href="index.html#problem"
+            >Problem</a
+          >
+          <a class="inline-flex min-h-[44px] items-center transition hover:text-frost" href="index.html#loesung"
+            >Lösung</a
+          >
+          <a class="inline-flex min-h-[44px] items-center transition hover:text-frost" href="index.html#ablauf"
+            >Ablauf</a
+          >
+        </nav>
+        <div class="flex shrink-0 items-center gap-2">
+          <a
+            href="index.html#cta"
+            class="hidden min-h-[44px] items-center justify-center rounded-full border border-ink-600 bg-ink-800/80 px-5 py-2.5 text-sm font-medium text-frost backdrop-blur transition hover:border-signal/40 hover:bg-ink-700/80 md:inline-flex"
+            >Kostenlos starten</a
+          >
+          <button
+            type="button"
+            id="nav-toggle"
+            class="inline-flex min-h-[44px] min-w-[44px] touch-manipulation items-center justify-center rounded-lg border border-ink-600 bg-ink-800/90 text-frost md:hidden"
+            aria-expanded="false"
+            aria-controls="mobile-nav-panel"
+          >
+            <span class="sr-only">Menü öffnen oder schließen</span>
+            <svg
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div
+      id="mobile-nav-panel"
+      class="fixed inset-0 z-[70] md:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Mobile Navigation"
+    >
+      <div class="mobile-nav-backdrop absolute inset-0 bg-ink-950/85 backdrop-blur-sm" aria-hidden="true"></div>
+      <nav
+        class="mobile-nav-sheet absolute right-0 top-0 flex h-full w-[min(100%,20rem)] flex-col border-l border-ink-700 bg-ink-900 shadow-2xl"
+        aria-label="Mobile"
+      >
+        <div class="flex flex-1 flex-col gap-0 p-4 pt-6">
+          <a
+            href="index.html#problem"
+            class="flex min-h-[48px] items-center border-b border-ink-700/80 py-2 text-base text-frost"
+            >Problem</a
+          >
+          <a
+            href="index.html#loesung"
+            class="flex min-h-[48px] items-center border-b border-ink-700/80 py-2 text-base text-frost"
+            >Lösung</a
+          >
+          <a
+            href="index.html#ablauf"
+            class="flex min-h-[48px] items-center border-b border-ink-700/80 py-2 text-base text-frost"
+            >Ablauf</a
+          >
+          <a
+            href="index.html#cta"
+            class="mt-4 inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-signal px-4 py-3 text-center text-sm font-semibold text-ink-950"
+            >Kostenlos starten</a
+          >
+        </div>
+      </nav>
+    </div>
+
+    <main class="border-t border-ink-800 bg-ink-950 py-12 md:py-16">
+      <article class="mx-auto max-w-3xl px-4 sm:px-6 md:px-8">
+        <h1 class="font-display text-3xl font-semibold tracking-tight text-frost md:text-4xl">Impressum</h1>
+        <p class="mt-2 text-sm text-mist">Informationspflichten nach TMG und RStV (Platzhalter)</p>
+
+        <div class="mt-10 space-y-8 text-mist">
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">Angaben zum Diensteanbieter</h2>
+            <p class="mt-3 leading-relaxed">
+              [Vorname Nachname]<br />
+              [Straße, PLZ Ort]<br />
+              Deutschland
+            </p>
+          </section>
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">Kontakt</h2>
+            <p class="mt-3 leading-relaxed">
+              E-Mail:
+              <a class="text-signal-glow underline decoration-signal/30 underline-offset-2 hover:decoration-signal" href="mailto:email@example.com">email@example.com</a>
+            </p>
+          </section>
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">Verantwortlich für journalistisch-redaktionelle Inhalte (RStV)</h2>
+            <p class="mt-3 leading-relaxed">[Name]<br />Anschrift wie oben</p>
+          </section>
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">Haftung für Inhalte</h2>
+            <p class="mt-3 leading-relaxed">
+              Als Diensteanbieter sind wir für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen
+              verantwortlich. Wir sind nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu
+              überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen
+              zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon
+              unberührt.
+            </p>
+          </section>
+          <section>
+            <h2 class="font-display text-lg font-semibold text-frost">Haftung für Links</h2>
+            <p class="mt-3 leading-relaxed">
+              Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben.
+              Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten
+              Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.
+            </p>
+          </section>
+        </div>
+        <p class="mt-12 text-sm text-mist">
+          <a class="text-signal-glow hover:underline" href="index.html">← Zurück zur Startseite</a>
+        </p>
+      </article>
+    </main>
+
+    <footer class="border-t border-ink-800 bg-ink-950 py-12">
+      <div class="mx-auto flex max-w-6xl flex-col gap-8 px-4 text-sm text-mist sm:px-6 md:px-8">
+        <div
+          class="flex flex-col items-start justify-between gap-6 border-b border-ink-800/80 pb-8 sm:flex-row sm:items-center"
+        >
+          <p class="font-display text-base font-medium text-frost/90">SEO Cockpit</p>
+          <nav class="flex flex-wrap gap-x-6 gap-y-2" aria-label="Rechtliches">
+            <a class="inline-flex min-h-[44px] items-center text-frost" href="impressum.html">Impressum</a>
+            <a class="inline-flex min-h-[44px] items-center transition hover:text-frost" href="datenschutz.html"
+              >Datenschutz</a
+            >
+          </nav>
+        </div>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p>&copy; <span id="y"></span> SEO Cockpit. Alle Rechte vorbehalten.</p>
+          <p class="text-mist/90">Made in Germany</p>
+        </div>
+      </div>
+    </footer>
+    <script src="nav.js" defer></script>
+  </body>
+</html>

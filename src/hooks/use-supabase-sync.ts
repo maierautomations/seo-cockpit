@@ -1,19 +1,21 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/use-auth';
 import { useSeoStore } from '@/lib/store';
 import type { ArticleStatusId } from '@/types/scoring';
 
 // Hydrates the Zustand store from Supabase on mount (if user is logged in).
 // Also provides sync helpers for article statuses.
 export function useSupabaseSync() {
-  const { data: session, status: sessionStatus } = useSession();
+  const { isLoggedIn, isLoading: authLoading } = useAuth();
   const [isHydrating, setIsHydrating] = useState(false);
-  const isLoggedIn = sessionStatus === 'authenticated' && !!session?.supabaseUserId;
 
   // Hydrate pages + statuses from Supabase on mount
   useEffect(() => {
+    // Wait for auth to finish loading before deciding
+    if (authLoading) return;
+
     if (!isLoggedIn) {
       useSeoStore.getState().setIsHydrated(true);
       return;
@@ -109,7 +111,7 @@ export function useSupabaseSync() {
 
     hydrate();
     return () => { cancelled = true; };
-  }, [isLoggedIn]);
+  }, [isLoggedIn, authLoading]);
 
   // Sync article status to Supabase (optimistic local update + async persist)
   const syncArticleStatus = useCallback(

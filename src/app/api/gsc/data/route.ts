@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { getAuthenticatedUserId } from '@/lib/api-auth';
 import { fetchGscSearchAnalytics, GscApiError } from '@/lib/gsc/client';
 import { transformGscData } from '@/lib/gsc/transformer';
 import { scorePages } from '@/lib/scoring/engine';
@@ -69,10 +70,11 @@ export async function POST(request: Request) {
 
     // Persist to Supabase (non-blocking)
     let importId: string | null = null;
-    if (session.supabaseUserId) {
+    const userId = await getAuthenticatedUserId();
+    if (userId) {
       try {
         importId = await persistImport({
-          userId: session.supabaseUserId,
+          userId,
           pages: scoredPages,
           overview,
           source: 'gsc',
