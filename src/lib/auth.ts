@@ -16,7 +16,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           access_type: 'offline',
           prompt: 'consent',
           scope:
-            'https://www.googleapis.com/auth/webmasters.readonly',
+            'openid email https://www.googleapis.com/auth/webmasters.readonly',
         },
       },
     }),

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronRight } from 'lucide-react';
 import { CategoryBadge } from '@/components/shared/category-badge';
@@ -14,6 +15,8 @@ interface TopCandidatesProps {
 }
 
 export function TopCandidates({ pages, limit = 10 }: TopCandidatesProps) {
+  const searchParams = useSearchParams();
+  const demoSuffix = searchParams.get('demo') === 'true' ? '&demo=true' : '';
   const top = pages.slice(0, limit);
 
   return (
@@ -28,7 +31,7 @@ export function TopCandidates({ pages, limit = 10 }: TopCandidatesProps) {
           {top.map((page, idx) => (
             <Link
               key={page.url}
-              href={`/article?url=${encodeURIComponent(page.url)}`}
+              href={`/article?url=${encodeURIComponent(page.url)}${demoSuffix}`}
               className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors group"
             >
               <span className="text-xs text-muted-foreground tabular-nums w-5 shrink-0 font-mono">

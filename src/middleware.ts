@@ -26,8 +26,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Redirect authenticated users away from /login
-  if (pathname === '/login' && user) {
+  // Redirect authenticated users away from /login (unless ?force to allow re-auth)
+  if (pathname === '/login' && user && !searchParams.has('force')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 

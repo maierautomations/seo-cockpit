@@ -79,27 +79,7 @@ export function useSupabaseSync() {
           }
         }
 
-        // No Supabase data — check if localStorage has data to migrate
-        if (store.pages.length > 0) {
-          // localStorage has data but Supabase doesn't — persist to Supabase
-          try {
-            const res = await fetch('/api/supabase/imports', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                pages: store.pages,
-                overview: store.overview,
-              }),
-            });
-            if (res.ok) {
-              const { importId } = await res.json();
-              if (importId) store.setCurrentImportId(importId);
-            }
-          } catch {
-            // Silently fail
-          }
-        }
-
+        // No Supabase data — pages are memory-only, nothing to migrate
         store.setIsHydrated(true);
       } catch (error) {
         console.error('Supabase hydration error:', error);

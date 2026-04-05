@@ -1,4 +1,4 @@
-import type { GscSite, GscAnalyticsRow } from '@/types/gsc-api';
+import type { GscSite, GscAnalyticsRow, GscOverviewRow } from '@/types/gsc-api';
 
 const GSC_API_BASE = 'https://www.googleapis.com/webmasters/v3';
 const MAX_ROWS_PER_REQUEST = 25000;
@@ -82,6 +82,46 @@ export async function fetchGscSearchAnalytics(
   }
 
   return allRows;
+}
+
+export async function fetchGscOverview(
+  accessToken: string,
+  siteUrl: string,
+  startDate: string,
+  endDate: string,
+): Promise<GscOverviewRow> {
+  const response = await fetch(
+    `${GSC_API_BASE}/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ startDate, endDate }),
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new GscApiError(
+      (error as { error?: { message?: string } }).error?.message ??
+        `GSC API error: ${response.status}`,
+      response.status,
+    );
+  }
+
+  const data = (await response.json()) as {
+    rows?: Array<{ clicks: number; impressions: number; ctr: number; position: number }>;
+  };
+
+  const row = data.rows?.[0];
+  return {
+    clicks: row?.clicks ?? 0,
+    impressions: row?.impressions ?? 0,
+    ctr: row?.ctr ?? 0,
+    position: row?.position ?? 0,
+  };
 }
 
 export class GscApiError extends Error {

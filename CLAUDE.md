@@ -151,7 +151,9 @@ src/
 - Landing page: Static HTML at /landing/index.html (served via public/landing/), "Kostenlos starten" → /login
 - Profile sync: DB trigger auto-creates profile on Supabase Auth signup (auth_user_id column links to auth.users)
 - GSC API: server-only client in src/lib/gsc/client.ts, transformer in src/lib/gsc/transformer.ts
-- GSC data flow: OAuth → /api/gsc/sites → /api/gsc/data → transformGscData() → scorePages() → store
+- GSC data flow: OAuth → /api/gsc/sites → /api/gsc/data (two parallel calls) → store
+- GSC two-call architecture: Call 1 (no dimensions) → exact GSC UI totals for KPI cards. Call 2 (query+page dimensions) → keyword-URL mapping for article list. MAX_TOTAL_ROWS = 100k safety cap.
+- GSC date presets: shared in src/lib/gsc/date-presets.ts (7d/28d/3m/6m/12m), used by property-selector + status banner
 - Data sources: GSC API (primary, real keyword mapping) or CSV (fallback, estimated mapping)
 - State management: Zustand store with persist middleware, no prop drilling
 - GSC connection state: persisted in store (property, dateRange, connectedAt, dataSource)

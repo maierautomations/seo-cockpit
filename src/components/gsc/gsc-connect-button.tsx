@@ -3,14 +3,26 @@
 import { signIn } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 
 export function GscConnectButton() {
   const [loading, setLoading] = useState(false);
-  const { isLoggedIn, profile } = useAuth();
+  const { user, isLoggedIn, profile, signOut } = useAuth();
+  const router = useRouter();
 
-  function handleConnect() {
-    if (!isLoggedIn || !profile) return;
+  async function handleConnect() {
+    if (!user) {
+      // No auth session at all — redirect to login
+      router.push('/login?redirect=/dashboard');
+      return;
+    }
+    if (!profile) {
+      // Auth session exists but profile missing — clear stale session and re-auth
+      await signOut();
+      router.push('/login?redirect=/dashboard');
+      return;
+    }
     setLoading(true);
     // Pass profile UUID to NextAuth so the JWT callback can persist GSC tokens
     document.cookie = `gsc_profile_id=${profile.id}; path=/; max-age=600; samesite=lax`;

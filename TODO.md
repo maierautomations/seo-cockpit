@@ -116,6 +116,10 @@
 - [x] Dashboard Empty State: GSC primary, CSV secondary
 - [x] Header: User Avatar, konditionaler Upload-Button
 - [x] Google Setup Anleitung (docs/google-setup.md)
+- [x] GSC KPI Fix: Zwei API-Calls (ohne Dimensions für KPI-Cards, mit Dimensions für Artikeldaten)
+- [x] GSC Date Range Selector im Status-Banner (7d/28d/3m/6m/12m)
+- [x] GSC Transparenz: "X Seiten analysiert (Top 100k Keywords)" im Banner
+- [x] Shared Date-Presets Utility (src/lib/gsc/date-presets.ts)
 - [ ] Google Cloud Console Credentials eintragen und live testen
 - [ ] Produktions-Redirect-URI konfigurieren (Vercel)
 

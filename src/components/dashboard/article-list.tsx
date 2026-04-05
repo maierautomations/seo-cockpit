@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,6 +36,8 @@ const SORTABLE_COLUMNS: Array<{ key: SortableColumn; label: string }> = [
 ];
 
 export function ArticleList({ pages, filters, onFilterChange }: ArticleListProps) {
+  const searchParams = useSearchParams();
+  const demoSuffix = searchParams.get('demo') === 'true' ? '&demo=true' : '';
   const { page, pageSize } = filters;
   const totalPages = Math.max(1, Math.ceil(pages.length / pageSize));
   const currentPage = Math.min(page, totalPages - 1);
@@ -108,7 +111,7 @@ export function ArticleList({ pages, filters, onFilterChange }: ArticleListProps
               </TableCell>
               <TableCell className="py-2.5">
                 <Link
-                  href={`/article?url=${encodeURIComponent(p.url)}`}
+                  href={`/article?url=${encodeURIComponent(p.url)}${demoSuffix}`}
                   className="text-sm text-foreground hover:text-signal transition-colors truncate block max-w-[320px]"
                   title={p.url}
                 >
@@ -139,7 +142,7 @@ export function ArticleList({ pages, filters, onFilterChange }: ArticleListProps
               </TableCell>
               <TableCell className="py-2.5">
                 <Link
-                  href={`/article?url=${encodeURIComponent(p.url)}`}
+                  href={`/article?url=${encodeURIComponent(p.url)}${demoSuffix}`}
                   className="text-muted-foreground group-hover/row:text-signal transition-colors"
                 >
                   <ChevronRight className="w-4 h-4" />

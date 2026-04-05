@@ -60,8 +60,11 @@ export function useGsc() {
 
       const data = (await response.json()) as { sites: GscSite[] };
       setSites(data.sites);
-    } catch {
-      setError('Verbindungsfehler. Bitte erneut versuchen.');
+    } catch (error) {
+      console.error('[GSC] Sites fetch error:', error);
+      setError(error instanceof TypeError
+        ? 'Netzwerkfehler. Bitte Internetverbindung prüfen.'
+        : 'Verbindungsfehler. Details in der Browser-Konsole.');
     } finally {
       setSitesLoading(false);
       setLoadingStep(null);
@@ -69,17 +72,21 @@ export function useGsc() {
   }, []);
 
   const loadData = useCallback(
-    async (siteUrl: string, startDate: string, endDate: string) => {
+    async (siteUrl: string, startDate: string, endDate: string, datePreset?: string) => {
       setDataLoading(true);
       setError(null);
       setTotalRows(null);
       setLoadingStep('loading-data');
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 120_000);
 
       try {
         const response = await fetch('/api/gsc/data', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ siteUrl, startDate, endDate }),
+          signal: controller.signal,
         });
 
         if (response.status === 401) {
@@ -93,19 +100,32 @@ export function useGsc() {
         }
 
         if (!response.ok) {
-          const data = (await response.json()) as { error?: string };
-          setError(data.error ?? 'Fehler beim Laden der Suchdaten.');
+          let message = 'Fehler beim Laden der Suchdaten.';
+          try {
+            const errData = (await response.json()) as { error?: string };
+            if (errData.error) message = errData.error;
+          } catch { /* response body not JSON */ }
+          console.error('[GSC] API error:', response.status, message);
+          setError(message);
           return;
         }
 
         setLoadingStep('scoring');
 
-        const data = (await response.json()) as {
+        let data: {
           pages: ScoredPage[];
           overview: DashboardOverview;
           totalRows: number;
           importId: string | null;
         };
+
+        try {
+          data = await response.json();
+        } catch (parseError) {
+          console.error('[GSC] Failed to parse API response:', parseError);
+          setError('Ungültige Server-Antwort. Bitte erneut versuchen.');
+          return;
+        }
 
         setPages(data.pages);
         setOverview(data.overview);
@@ -118,12 +138,22 @@ export function useGsc() {
           dateRange: { startDate, endDate },
           connectedAt: new Date().toISOString(),
           dataSource: 'gsc',
+          datePreset,
         });
 
         setLoadingStep('done');
-      } catch {
-        setError('Verbindungsfehler. Bitte erneut versuchen.');
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          setError('Zeitüberschreitung — versuche einen kürzeren Zeitraum.');
+        } else if (error instanceof TypeError) {
+          console.error('[GSC] Network error:', error);
+          setError('Netzwerkfehler. Bitte Internetverbindung prüfen.');
+        } else {
+          console.error('[GSC] Unexpected error:', error);
+          setError('Unerwarteter Fehler. Details in der Browser-Konsole.');
+        }
       } finally {
+        clearTimeout(timeout);
         setDataLoading(false);
         // Keep 'done' step visible briefly before clearing
         setTimeout(() => setLoadingStep(null), 1500);

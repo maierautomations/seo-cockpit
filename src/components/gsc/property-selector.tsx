@@ -13,38 +13,10 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Loader2, Check, Globe, Calendar, ArrowRight } from 'lucide-react';
+import { type DatePreset, DATE_PRESETS, getDateRange } from '@/lib/gsc/date-presets';
 
-type DatePreset = '3months' | '6months' | '12months';
-
-const DATE_PRESETS: Record<DatePreset, string> = {
-  '3months': 'Letzte 3 Monate',
-  '6months': 'Letzte 6 Monate',
-  '12months': 'Letztes Jahr',
-};
-
-function getDateRange(preset: DatePreset): { startDate: string; endDate: string } {
-  const end = new Date();
-  // GSC data has a 2-3 day delay
-  end.setDate(end.getDate() - 3);
-  const start = new Date(end);
-
-  switch (preset) {
-    case '3months':
-      start.setMonth(start.getMonth() - 3);
-      break;
-    case '6months':
-      start.setMonth(start.getMonth() - 6);
-      break;
-    case '12months':
-      start.setFullYear(start.getFullYear() - 1);
-      break;
-  }
-
-  return {
-    startDate: start.toISOString().split('T')[0],
-    endDate: end.toISOString().split('T')[0],
-  };
-}
+// Only show longer presets in the initial property selector
+const INITIAL_PRESETS: DatePreset[] = ['3months', '6months', '12months'];
 
 function formatPropertyName(siteUrl: string): string {
   // sc-domain:example.com → example.com
@@ -113,7 +85,7 @@ export function PropertySelector() {
   function handleLoadData() {
     if (!selectedProperty) return;
     const { startDate, endDate } = getDateRange(datePreset);
-    loadData(selectedProperty, startDate, endDate);
+    loadData(selectedProperty, startDate, endDate, datePreset);
   }
 
   // Loading state: progress steps
@@ -229,13 +201,11 @@ export function PropertySelector() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {(Object.entries(DATE_PRESETS) as [DatePreset, string][]).map(
-                ([key, label]) => (
-                  <SelectItem key={key} value={key}>
-                    {label}
-                  </SelectItem>
-                ),
-              )}
+              {INITIAL_PRESETS.map((key) => (
+                <SelectItem key={key} value={key}>
+                  {DATE_PRESETS[key]}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

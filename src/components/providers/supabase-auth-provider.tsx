@@ -46,7 +46,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Fetch the profile for a given auth user
+  // Fetch the profile for a given auth user (auto-create if trigger failed)
   const fetchProfile = useCallback(async (authUser: User) => {
     const supabase = createClient();
     const { data } = await supabase
@@ -57,6 +57,26 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
 
     if (data) {
       setProfile(data);
+      return;
+    }
+
+    // Fallback: create profile if DB trigger didn't fire
+    const { data: newProfile } = await supabase
+      .from('profiles')
+      .upsert(
+        {
+          auth_user_id: authUser.id,
+          email: authUser.email ?? null,
+          display_name: authUser.user_metadata?.full_name ?? authUser.user_metadata?.name ?? null,
+          avatar_url: authUser.user_metadata?.avatar_url ?? null,
+        },
+        { onConflict: 'auth_user_id' },
+      )
+      .select('id, email, display_name, avatar_url')
+      .single();
+
+    if (newProfile) {
+      setProfile(newProfile);
     }
   }, []);
 

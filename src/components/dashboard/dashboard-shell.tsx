@@ -13,8 +13,8 @@ import { StatusOverview } from './status-overview';
 import { FilterBar } from './filter-bar';
 import { ArticleList } from './article-list';
 import { Separator } from '@/components/ui/separator';
-import { Upload } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { Upload, ArrowLeft, RefreshCw } from 'lucide-react';
+import { useSession, signOut as nextAuthSignOut, signIn as nextAuthSignIn } from 'next-auth/react';
 import { useAuth } from '@/hooks/use-auth';
 import { GscConnectButton } from '@/components/gsc/gsc-connect-button';
 import { PropertySelector } from '@/components/gsc/property-selector';
@@ -167,13 +167,35 @@ export function DashboardShell() {
 
               <PropertySelector />
 
-              {/* CSV fallback */}
-              <button
-                onClick={() => setUploadOpen(true)}
-                className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors underline underline-offset-4 decoration-border"
-              >
-                Oder CSV-Dateien hochladen
-              </button>
+              {/* Back / Reconnect / CSV fallback */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => nextAuthSignOut({ redirect: false })}
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                  >
+                    <ArrowLeft className="w-3 h-3" />
+                    Zurück
+                  </button>
+                  <span className="text-muted-foreground/30">·</span>
+                  <button
+                    onClick={async () => {
+                      await nextAuthSignOut({ redirect: false });
+                      nextAuthSignIn('google', { callbackUrl: '/dashboard' });
+                    }}
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    Neu verbinden
+                  </button>
+                </div>
+                <button
+                  onClick={() => setUploadOpen(true)}
+                  className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors underline underline-offset-4 decoration-border"
+                >
+                  Oder CSV-Dateien hochladen
+                </button>
+              </div>
             </div>
           </div>
         ) : (

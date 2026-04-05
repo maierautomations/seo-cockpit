@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getAuthenticatedUserId } from '@/lib/api-auth';
-import { fetchGscSearchAnalytics, GscApiError } from '@/lib/gsc/client';
+import { fetchGscSearchAnalytics, fetchGscOverview, GscApiError } from '@/lib/gsc/client';
 import { transformGscData } from '@/lib/gsc/transformer';
 import { scorePages } from '@/lib/scoring/engine';
 import { calculateOverview } from '@/lib/csv/merger';
 import { persistImport } from '@/lib/supabase/persist-import';
+import type { DashboardOverview } from '@/types/gsc';
 
 interface GscDataRequest {
   siteUrl: string;
@@ -15,6 +16,12 @@ interface GscDataRequest {
 
 export async function POST(request: Request) {
   const session = await auth();
+
+  console.log('[GSC /api/gsc/data] Session state:', {
+    hasToken: !!session?.accessToken,
+    tokenLength: session?.accessToken?.length ?? 0,
+    error: session?.error ?? null,
+  });
 
   if (!session?.accessToken) {
     return NextResponse.json(
@@ -32,6 +39,7 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as GscDataRequest;
   const { siteUrl, startDate, endDate } = body;
+  console.log('[GSC /api/gsc/data] Request:', { siteUrl, startDate, endDate });
 
   if (!siteUrl || !startDate || !endDate) {
     return NextResponse.json(
@@ -50,13 +58,20 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Fetch raw analytics data (with pagination)
-    const rows = await fetchGscSearchAnalytics(
-      session.accessToken,
-      siteUrl,
-      startDate,
-      endDate,
-    );
+    // Fetch overview (no dimensions = exact GSC UI numbers) + detail data in parallel
+    const [overviewResult, rows] = await Promise.all([
+      fetchGscOverview(session.accessToken, siteUrl, startDate, endDate)
+        .catch((err) => {
+          console.warn('[GSC /api/gsc/data] Overview call failed, will fall back:', err);
+          return null;
+        }),
+      fetchGscSearchAnalytics(session.accessToken, siteUrl, startDate, endDate),
+    ]);
+
+    console.log('[GSC /api/gsc/data] Fetched rows:', rows.length);
+    if (overviewResult) {
+      console.log('[GSC /api/gsc/data] Overview:', overviewResult);
+    }
 
     // Transform to PageData[] (real keyword-to-URL mapping)
     const pageData = transformGscData(rows);
@@ -64,9 +79,23 @@ export async function POST(request: Request) {
     // Score pages (same engine as CSV flow)
     const scoredPages = scorePages(pageData);
 
-    // Calculate overview KPIs
+    // Build overview: prefer dimension-less API data (matches GSC UI),
+    // fall back to calculated overview from page data
     const totalKeywords = pageData.reduce((sum, p) => sum + p.keywordCount, 0);
-    const overview = calculateOverview(pageData, totalKeywords);
+    let overview: DashboardOverview;
+
+    if (overviewResult) {
+      overview = {
+        totalKlicks: overviewResult.clicks,
+        totalImpressionen: overviewResult.impressions,
+        avgCtr: overviewResult.ctr,
+        avgPosition: overviewResult.position,
+        totalPages: pageData.length,
+        totalKeywords,
+      };
+    } else {
+      overview = calculateOverview(pageData, totalKeywords);
+    }
 
     // Persist to Supabase (non-blocking)
     let importId: string | null = null;
@@ -106,7 +135,7 @@ export async function POST(request: Request) {
         { status: error.statusCode },
       );
     }
-    console.error('GSC data fetch error:', error);
+    console.error('[GSC /api/gsc/data] Unexpected error:', error);
     return NextResponse.json(
       { error: 'Fehler beim Abrufen der Suchdaten.' },
       { status: 500 },

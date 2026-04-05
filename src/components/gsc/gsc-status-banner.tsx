@@ -3,8 +3,17 @@
 import { useSession } from 'next-auth/react';
 import { useGsc } from '@/hooks/use-gsc';
 import { useSeoStore } from '@/lib/store';
+import { type DatePreset, DATE_PRESETS, getDateRange } from '@/lib/gsc/date-presets';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, LogOut, Globe, Loader2 } from 'lucide-react';
+import { formatNumber, formatCompact } from '@/lib/format';
 
 function formatPropertyName(siteUrl: string): string {
   return siteUrl
@@ -15,8 +24,8 @@ function formatPropertyName(siteUrl: string): string {
 
 export function GscStatusBanner() {
   const { data: session } = useSession();
-  const { gscConnection } = useSeoStore();
-  const { loadData, disconnect, dataLoading } = useGsc();
+  const { gscConnection, overview } = useSeoStore();
+  const { loadData, disconnect, dataLoading, totalRows } = useGsc();
 
   if (gscConnection.dataSource !== 'gsc' || !gscConnection.property) {
     return null;
@@ -28,18 +37,18 @@ export function GscStatusBanner() {
       gscConnection.property,
       gscConnection.dateRange.startDate,
       gscConnection.dateRange.endDate,
+      gscConnection.datePreset,
     );
   }
 
-  const connectedAt = gscConnection.connectedAt
-    ? new Date(gscConnection.connectedAt).toLocaleString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : null;
+  function handleDatePresetChange(preset: string) {
+    if (!gscConnection.property) return;
+    const { startDate, endDate } = getDateRange(preset as DatePreset);
+    loadData(gscConnection.property, startDate, endDate, preset);
+  }
+
+  const totalPages = overview?.totalPages ?? 0;
+  const isDataCapped = totalRows !== null && totalRows >= 100_000;
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-signal/15 bg-signal/[0.04] px-4 py-2.5">
@@ -58,18 +67,35 @@ export function GscStatusBanner() {
           <span className="text-foreground font-medium truncate">
             {formatPropertyName(gscConnection.property)}
           </span>
-          {connectedAt && (
-            <>
-              <span className="text-muted-foreground/40">·</span>
-              <span className="text-muted-foreground text-xs whitespace-nowrap">
-                {connectedAt}
-              </span>
-            </>
-          )}
+          <span className="text-muted-foreground/40">·</span>
+          <span className="text-muted-foreground text-xs whitespace-nowrap">
+            {formatNumber(totalPages)} Seiten
+            {isDataCapped && ' (Top 100k Keywords)'}
+          </span>
         </div>
       </div>
 
       <div className="flex items-center gap-1.5">
+        {/* Date range selector */}
+        <Select
+          value={gscConnection.datePreset ?? '3months'}
+          onValueChange={handleDatePresetChange}
+          disabled={dataLoading}
+        >
+          <SelectTrigger className="h-7 w-auto min-w-[130px] px-2.5 text-xs border-none bg-transparent text-muted-foreground hover:text-foreground">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {(Object.entries(DATE_PRESETS) as [DatePreset, string][]).map(
+              ([key, label]) => (
+                <SelectItem key={key} value={key}>
+                  {label}
+                </SelectItem>
+              ),
+            )}
+          </SelectContent>
+        </Select>
+
         <Button
           variant="ghost"
           size="sm"

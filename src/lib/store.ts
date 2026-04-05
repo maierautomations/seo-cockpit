@@ -56,6 +56,19 @@ interface SeoStore {
   }) => void;
 }
 
+// One-time migration: clear oversized localStorage entries from old schema
+if (typeof window !== 'undefined') {
+  try {
+    const raw = localStorage.getItem('seo-cockpit-store');
+    if (raw && raw.length > 500_000) {
+      localStorage.removeItem('seo-cockpit-store');
+      console.warn('[store] Cleared oversized localStorage entry (%d KB)', Math.round(raw.length / 1024));
+    }
+  } catch {
+    // Ignore — localStorage may be inaccessible
+  }
+}
+
 export const useSeoStore = create<SeoStore>()(
   persist(
     (set) => ({
@@ -145,16 +158,21 @@ export const useSeoStore = create<SeoStore>()(
     }),
     {
       name: 'seo-cockpit-store',
+      // Only persist lightweight data — heavy data (pages, CSV) lives in memory
+      // and is rehydrated from Supabase for logged-in users
       partialize: (state) => ({
-        queryCsv: state.queryCsv,
-        pageCsv: state.pageCsv,
-        pages: state.pages,
         overview: state.overview,
         lastUploadAt: state.lastUploadAt,
         articleStatuses: state.articleStatuses,
         gscConnection: state.gscConnection,
         currentImportId: state.currentImportId,
       }),
+      onRehydrateStorage: () => (_, error) => {
+        if (error) {
+          console.warn('[store] Rehydration failed, clearing localStorage:', error);
+          try { localStorage.removeItem('seo-cockpit-store'); } catch { /* ignore */ }
+        }
+      },
     },
   ),
 );

@@ -105,12 +105,15 @@ export function Header({ onUploadClick }: HeaderProps) {
             </div>
           )}
 
-          {/* Sign in button when not authenticated and not in demo mode */}
-          {!isLoggedIn && !isDemo && (
+          {/* Sign in button when not authenticated (including demo mode) */}
+          {!isLoggedIn && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.push('/login')}
+              onClick={async () => {
+                await signOut();
+                router.push('/login');
+              }}
               className="gap-2 rounded-full"
             >
               <LogIn className="w-3.5 h-3.5" />
