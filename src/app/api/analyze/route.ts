@@ -102,23 +102,13 @@ export async function POST(request: Request) {
         if (userId) {
           const supabase = createServiceClient();
 
-          // Look up page_id if it exists
-          const { data: pageRow } = await supabase
-            .from('pages')
-            .select('id')
-            .eq('user_id', userId)
-            .eq('url', url)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-
           await supabase
             .from('article_analyses')
             .upsert(
               {
                 user_id: userId,
                 url,
-                page_id: pageRow?.id ?? null,
+                page_id: null,
                 structure_check: JSON.parse(JSON.stringify(analysis.structure)),
                 seo_check: JSON.parse(JSON.stringify(analysis.seo)),
                 content_analysis: JSON.parse(JSON.stringify(contentResult)),

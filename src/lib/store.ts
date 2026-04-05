@@ -7,6 +7,8 @@ import type { ScoredPage, ArticleStatusId, ArticleStatus } from '@/types/scoring
 import type { CsvParseResult } from '@/types/csv';
 import type { ArticleAnalysis } from '@/types/analysis';
 import type { GscConnectionState } from '@/types/gsc-api';
+import type { PageTypeSettings } from '@/types/page-type-filter';
+import { DEFAULT_PAGE_TYPE_SETTINGS } from '@/lib/page-type-config';
 
 interface SeoStore {
   // CSV upload state
@@ -43,17 +45,13 @@ interface SeoStore {
   setGscConnection: (connection: Partial<GscConnectionState>) => void;
   disconnectGsc: () => void;
 
-  // Supabase sync state
-  currentImportId: string | null;
+  // Page type filter settings
+  pageTypeSettings: PageTypeSettings;
+  setPageTypeSettings: (settings: PageTypeSettings) => void;
+
+  // Sync state
   isHydrated: boolean;
-  setCurrentImportId: (id: string | null) => void;
   setIsHydrated: (hydrated: boolean) => void;
-  hydrateFromSupabase: (data: {
-    pages: ScoredPage[];
-    overview: DashboardOverview;
-    articleStatuses: Record<string, ArticleStatus>;
-    importId: string | null;
-  }) => void;
 }
 
 // One-time migration: clear oversized localStorage entries from old schema
@@ -141,20 +139,13 @@ export const useSeoStore = create<SeoStore>()(
           lastUploadAt: null,
         }),
 
-      // Supabase sync
-      currentImportId: null,
+      // Page type filter settings
+      pageTypeSettings: DEFAULT_PAGE_TYPE_SETTINGS,
+      setPageTypeSettings: (settings) => set({ pageTypeSettings: settings }),
+
+      // Sync state
       isHydrated: false,
-      setCurrentImportId: (id) => set({ currentImportId: id }),
       setIsHydrated: (hydrated) => set({ isHydrated: hydrated }),
-      hydrateFromSupabase: (data) =>
-        set({
-          pages: data.pages,
-          overview: data.overview,
-          articleStatuses: data.articleStatuses,
-          currentImportId: data.importId,
-          isHydrated: true,
-          lastUploadAt: new Date().toISOString(),
-        }),
     }),
     {
       name: 'seo-cockpit-store',
@@ -165,7 +156,7 @@ export const useSeoStore = create<SeoStore>()(
         lastUploadAt: state.lastUploadAt,
         articleStatuses: state.articleStatuses,
         gscConnection: state.gscConnection,
-        currentImportId: state.currentImportId,
+        pageTypeSettings: state.pageTypeSettings,
       }),
       onRehydrateStorage: () => (_, error) => {
         if (error) {

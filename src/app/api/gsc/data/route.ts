@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { getAuthenticatedUserId } from '@/lib/api-auth';
 import { fetchGscSearchAnalytics, fetchGscOverview, GscApiError } from '@/lib/gsc/client';
 import { transformGscData } from '@/lib/gsc/transformer';
 import { scorePages } from '@/lib/scoring/engine';
 import { calculateOverview } from '@/lib/csv/merger';
-import { persistImport } from '@/lib/supabase/persist-import';
 import type { DashboardOverview } from '@/types/gsc';
 
 interface GscDataRequest {
@@ -97,30 +95,10 @@ export async function POST(request: Request) {
       overview = calculateOverview(pageData, totalKeywords);
     }
 
-    // Persist to Supabase (non-blocking)
-    let importId: string | null = null;
-    const userId = await getAuthenticatedUserId();
-    if (userId) {
-      try {
-        importId = await persistImport({
-          userId,
-          pages: scoredPages,
-          overview,
-          source: 'gsc',
-          propertyUrl: siteUrl,
-          dateRangeStart: startDate,
-          dateRangeEnd: endDate,
-        });
-      } catch (error) {
-        console.error('Supabase persist error (non-blocking):', error);
-      }
-    }
-
     return NextResponse.json({
       pages: scoredPages,
       overview,
       totalRows: rows.length,
-      importId,
     });
   } catch (error) {
     if (error instanceof GscApiError) {

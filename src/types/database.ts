@@ -68,6 +68,56 @@ export type Database = {
           },
         ]
       }
+      article_snapshots: {
+        Row: {
+          clicks_at_optimization: number | null
+          created_at: string | null
+          ctr_at_optimization: number | null
+          id: string
+          impressions_at_optimization: number | null
+          main_keyword: string | null
+          notes: string | null
+          optimized_at: string
+          position_at_optimization: number | null
+          url: string
+          user_id: string
+        }
+        Insert: {
+          clicks_at_optimization?: number | null
+          created_at?: string | null
+          ctr_at_optimization?: number | null
+          id?: string
+          impressions_at_optimization?: number | null
+          main_keyword?: string | null
+          notes?: string | null
+          optimized_at?: string
+          position_at_optimization?: number | null
+          url: string
+          user_id: string
+        }
+        Update: {
+          clicks_at_optimization?: number | null
+          created_at?: string | null
+          ctr_at_optimization?: number | null
+          id?: string
+          impressions_at_optimization?: number | null
+          main_keyword?: string | null
+          notes?: string | null
+          optimized_at?: string
+          position_at_optimization?: number | null
+          url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_snapshots_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       article_statuses: {
         Row: {
           id: string
@@ -392,6 +442,35 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      user_settings: {
+        Row: {
+          id: string
+          settings: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          settings?: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          settings?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

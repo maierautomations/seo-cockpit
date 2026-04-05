@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSeoStore } from '@/lib/store';
 import { filterAndSortPages } from '@/lib/filter-pages';
+import { filterPagesByType, computeOverviewFromPages } from '@/lib/page-type-filter';
 import { DEFAULT_FILTERS } from '@/types/dashboard';
 import { Header } from '@/components/shared/header';
 import { UploadDialog } from '@/components/upload/upload-dialog';
@@ -12,25 +13,31 @@ import { CategorySummary } from './category-summary';
 import { StatusOverview } from './status-overview';
 import { FilterBar } from './filter-bar';
 import { ArticleList } from './article-list';
+import { PageTypeSettingsDialog } from './page-type-settings-dialog';
 import { Separator } from '@/components/ui/separator';
-import { Upload, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Alert } from '@/components/ui/alert';
+import { Upload, ArrowLeft, RefreshCw, Info } from 'lucide-react';
 import { useSession, signOut as nextAuthSignOut, signIn as nextAuthSignIn } from 'next-auth/react';
 import { useAuth } from '@/hooks/use-auth';
 import { GscConnectButton } from '@/components/gsc/gsc-connect-button';
 import { PropertySelector } from '@/components/gsc/property-selector';
 import { GscStatusBanner } from '@/components/gsc/gsc-status-banner';
 import { useSupabaseSync } from '@/hooks/use-supabase-sync';
+import { usePageTypeSettings } from '@/hooks/use-page-type-settings';
 import { DemoBanner } from '@/components/shared/demo-banner';
 import type { DashboardFilters } from '@/types/dashboard';
 import type { CategoryId, ArticleStatusId } from '@/types/scoring';
+import type { PageTypePresetId } from '@/types/page-type-filter';
 
 export function DashboardShell() {
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [filters, setFilters] = useState<DashboardFilters>(DEFAULT_FILTERS);
-  const { pages, overview, lastUploadAt, articleStatuses, gscConnection, isHydrated } = useSeoStore();
+  const { pages, overview, lastUploadAt, articleStatuses, gscConnection, pageTypeSettings, setPageTypeSettings } = useSeoStore();
   const { data: session } = useSession(); // NextAuth session — for GSC access token only
   const { isLoggedIn: isSupabaseLoggedIn, isDemo } = useAuth();
   const { isHydrating } = useSupabaseSync();
+  usePageTypeSettings(); // Syncs page type settings with Supabase
   const hasData = pages.length > 0 && overview !== null;
 
   // Keyboard shortcut: Cmd+U to open upload dialog
@@ -44,6 +51,18 @@ export function DashboardShell() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Pre-filter: apply page type filter before anything else
+  const typeFilteredPages = useMemo(
+    () => filterPagesByType(pages, pageTypeSettings),
+    [pages, pageTypeSettings],
+  );
+
+  // Recompute overview from type-filtered pages
+  const filteredOverview = useMemo(
+    () => computeOverviewFromPages(typeFilteredPages),
+    [typeFilteredPages],
+  );
 
   const handleFilterChange = useCallback((partial: Partial<DashboardFilters>) => {
     setFilters((prev) => ({
@@ -82,11 +101,19 @@ export function DashboardShell() {
     });
   }, []);
 
-  // Filtered + sorted pages for the full list
+  // Page type preset change
+  const handlePageTypeChange = useCallback((preset: PageTypePresetId) => {
+    setPageTypeSettings({ ...pageTypeSettings, activePreset: preset });
+  }, [pageTypeSettings, setPageTypeSettings]);
+
+  // Filtered + sorted pages for the full list (from type-filtered pages)
   const filteredPages = useMemo(
-    () => filterAndSortPages(pages, articleStatuses, filters),
-    [pages, articleStatuses, filters],
+    () => filterAndSortPages(typeFilteredPages, articleStatuses, filters),
+    [typeFilteredPages, articleStatuses, filters],
   );
+
+  // Show hint when type filter produces empty results but there is data
+  const showEmptyTypeHint = typeFilteredPages.length === 0 && pages.length > 0 && pageTypeSettings.activePreset !== 'alle';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -113,19 +140,39 @@ export function DashboardShell() {
               )
             )}
 
-            <KpiCards overview={overview} />
+            {showEmptyTypeHint && (
+              <Alert className="border-signal/30 bg-signal/5">
+                <Info className="w-4 h-4 text-signal" />
+                <div className="ml-2">
+                  <p className="text-sm font-medium">Keine Seiten für diesen Filter</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Der aktive Seitentyp-Filter zeigt keine Ergebnisse.
+                    Wechsle zu &ldquo;Alle Seiten&rdquo; oder passe die URL-Patterns in den{' '}
+                    <button
+                      onClick={() => setSettingsOpen(true)}
+                      className="text-signal underline underline-offset-2"
+                    >
+                      Einstellungen
+                    </button>{' '}
+                    an.
+                  </p>
+                </div>
+              </Alert>
+            )}
+
+            <KpiCards overview={filteredOverview} />
 
             <StatusOverview
-              pages={pages}
+              pages={typeFilteredPages}
               articleStatuses={articleStatuses}
               activeStatuses={filters.statuses}
               onStatusClick={handleStatusClick}
             />
 
             <div className="grid lg:grid-cols-[1fr_340px] gap-6">
-              <TopCandidates pages={pages} />
+              <TopCandidates pages={typeFilteredPages} />
               <CategorySummary
-                pages={pages}
+                pages={typeFilteredPages}
                 activeCategories={filters.categories}
                 onCategoryClick={handleCategoryClick}
               />
@@ -140,7 +187,11 @@ export function DashboardShell() {
                 filters={filters}
                 onFilterChange={handleFilterChange}
                 totalResults={filteredPages.length}
-                totalPages={pages.length}
+                totalPages={typeFilteredPages.length}
+                totalAllPages={pages.length}
+                pageTypePreset={pageTypeSettings.activePreset}
+                onPageTypeChange={handlePageTypeChange}
+                onSettingsClick={() => setSettingsOpen(true)}
               />
               <ArticleList
                 pages={filteredPages}
@@ -204,6 +255,13 @@ export function DashboardShell() {
       </main>
 
       <UploadDialog open={uploadOpen} onOpenChange={setUploadOpen} />
+      <PageTypeSettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        allPages={pages}
+        settings={pageTypeSettings}
+        onSave={setPageTypeSettings}
+      />
     </div>
   );
 }

@@ -1,10 +1,11 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, Suspense } from 'react';
+import { useEffect, useMemo, useState, Suspense } from 'react';
 import { useSeoStore } from '@/lib/store';
 import { useArticleAnalysis } from '@/hooks/use-article-analysis';
 import { useSerpAnalysis } from '@/hooks/use-serp-analysis';
+import { useAuth } from '@/hooks/use-auth';
 import { Header } from '@/components/shared/header';
 import { AnalysisHeader } from '@/components/analysis/analysis-header';
 import { ArticleNav } from '@/components/analysis/article-nav';
@@ -20,8 +21,10 @@ import { useSupabaseSync } from '@/hooks/use-supabase-sync';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { Sparkles, Loader2, Search, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Sparkles, Loader2, Search, CheckCircle2, RefreshCw, TrendingUp, TrendingDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatDecimal } from '@/lib/format';
+import type { ArticleSnapshot } from '@/app/api/supabase/snapshots/route';
 
 function ArticleContent() {
   const searchParams = useSearchParams();
@@ -31,7 +34,30 @@ function ArticleContent() {
   const analysisFromCache = useSeoStore((s) => s.analysisFromCache);
   const analysisCachedAt = useSeoStore((s) => s.analysisCachedAt);
   const { syncArticleStatus } = useSupabaseSync();
+  const { isLoggedIn } = useAuth();
   const page = pages.find((p) => p.url === url);
+  const [snapshots, setSnapshots] = useState<ArticleSnapshot[]>([]);
+
+  // Fetch snapshots for this URL
+  useEffect(() => {
+    if (!url || !isLoggedIn) return;
+    let cancelled = false;
+
+    async function loadSnapshots() {
+      try {
+        const res = await fetch(`/api/supabase/snapshots?url=${encodeURIComponent(url)}`);
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          setSnapshots(data.snapshots ?? []);
+        }
+      } catch {
+        // Silently fail
+      }
+    }
+
+    loadSnapshots();
+    return () => { cancelled = true; };
+  }, [url, isLoggedIn]);
 
   // Navigation: prev/next in scored list
   const navInfo = useMemo(() => {
@@ -98,8 +124,14 @@ function ArticleContent() {
   };
 
   const handleMarkOptimized = () => {
-    if (!url) return;
-    syncArticleStatus(url, 'optimiert');
+    if (!url || !page) return;
+    syncArticleStatus(url, 'optimiert', {
+      position: page.position,
+      ctr: page.ctr,
+      impressions: page.impressionen,
+      clicks: page.klicks,
+      mainKeyword: page.keywords[0]?.keyword,
+    });
     toast.success('Artikel als optimiert markiert');
   };
 
@@ -138,6 +170,11 @@ function ArticleContent() {
       ) : activeAnalysis ? (
         <>
           <AnalysisHeader analysis={activeAnalysis} page={page} />
+
+          {/* Snapshot: before/after comparison */}
+          {snapshots.length > 0 && page && (
+            <SnapshotComparison snapshot={snapshots[0]} currentPage={page} />
+          )}
 
           {/* Cache indicator + re-analyze button */}
           {analysisFromCache && analysisCachedAt && (
@@ -280,6 +317,56 @@ function ArticleContent() {
           />
         </>
       ) : null}
+    </div>
+  );
+}
+
+function SnapshotComparison({
+  snapshot,
+  currentPage,
+}: {
+  snapshot: ArticleSnapshot;
+  currentPage: { position: number; ctr: number; impressionen: number; klicks: number };
+}) {
+  const positionBefore = snapshot.positionAtOptimization;
+  const positionNow = currentPage.position;
+
+  if (positionBefore == null) return null;
+
+  const positionDiff = positionBefore - positionNow; // positive = improvement
+  const improved = positionDiff > 0;
+  const dateStr = new Date(snapshot.optimizedAt).toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
+  return (
+    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+      <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-1.5">
+          {improved ? (
+            <TrendingUp className="w-4 h-4 text-emerald-400" />
+          ) : positionDiff < 0 ? (
+            <TrendingDown className="w-4 h-4 text-red-400" />
+          ) : null}
+          <span className="text-muted-foreground">Letzte Optimierung ({dateStr}):</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-muted-foreground">
+            Pos. {formatDecimal(positionBefore)}
+          </span>
+          <span className="text-muted-foreground/50">&rarr;</span>
+          <span className="text-foreground font-medium">
+            Pos. {formatDecimal(positionNow)}
+          </span>
+          {positionDiff !== 0 && (
+            <span className={`text-xs font-medium ${improved ? 'text-emerald-400' : 'text-red-400'}`}>
+              ({improved ? '+' : ''}{formatDecimal(positionDiff)} Positionen)
+            </span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

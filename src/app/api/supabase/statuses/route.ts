@@ -38,9 +38,14 @@ export async function GET() {
 interface StatusUpdateRequest {
   url: string;
   status: ArticleStatusId;
+  position?: number;
+  ctr?: number;
+  impressions?: number;
+  clicks?: number;
+  mainKeyword?: string;
 }
 
-// POST: Upsert an article status
+// POST: Upsert an article status + save snapshot if "optimiert"
 export async function POST(request: Request) {
   const userId = await getAuthenticatedUserId();
   if (!userId) {
@@ -48,7 +53,7 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as StatusUpdateRequest;
-  const { url, status } = body;
+  const { url, status, position, ctr, impressions, clicks, mainKeyword } = body;
 
   if (!url || !status) {
     return NextResponse.json({ error: 'url und status sind erforderlich.' }, { status: 400 });
@@ -57,16 +62,6 @@ export async function POST(request: Request) {
   const supabase = createServiceClient();
   const now = new Date().toISOString();
 
-  // Try to find existing page_id for this URL
-  const { data: page } = await supabase
-    .from('pages')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('url', url)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
-
   const { error } = await supabase
     .from('article_statuses')
     .upsert(
@@ -74,7 +69,7 @@ export async function POST(request: Request) {
         user_id: userId,
         url,
         status,
-        page_id: page?.id ?? null,
+        page_id: null,
         updated_at: now,
         optimized_at: status === 'optimiert' ? now : null,
       },
@@ -84,6 +79,26 @@ export async function POST(request: Request) {
   if (error) {
     console.error('Failed to upsert status:', error);
     return NextResponse.json({ error: 'Fehler beim Speichern.' }, { status: 500 });
+  }
+
+  // Save snapshot when marking as optimized (non-blocking)
+  if (status === 'optimiert') {
+    try {
+      await supabase
+        .from('article_snapshots')
+        .insert({
+          user_id: userId,
+          url,
+          main_keyword: mainKeyword ?? null,
+          position_at_optimization: position ?? null,
+          ctr_at_optimization: ctr ?? null,
+          impressions_at_optimization: impressions != null ? Math.round(impressions) : null,
+          clicks_at_optimization: clicks != null ? Math.round(clicks) : null,
+          optimized_at: now,
+        });
+    } catch (snapshotError) {
+      console.error('Failed to save snapshot (non-blocking):', snapshotError);
+    }
   }
 
   return NextResponse.json({ success: true });

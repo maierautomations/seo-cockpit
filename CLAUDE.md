@@ -40,26 +40,30 @@ src/
 │       │   └── data/       # POST: fetch search analytics, score, return ScoredPage[]
 │       ├── serp-analysis/  # POST: ValueSERP API + Claude gap analysis
 │       └── supabase/
-│           ├── imports/    # POST: persist CSV import to Supabase
-│           ├── pages/      # GET: load pages from most recent import
+│           ├── imports/    # DEPRECATED: no-op (GSC data is live-only)
+│           ├── pages/      # DEPRECATED: no-op (GSC data is live-only)
 │           ├── analyses/   # GET: load cached article analysis
-│           ├── statuses/   # GET/POST: read/write article statuses
+│           ├── statuses/   # GET/POST: read/write article statuses + snapshot on optimize
+│           ├── settings/   # GET/POST: user settings (page type filter, etc.)
+│           ├── snapshots/  # GET: article optimization snapshots (before/after tracking)
 │           └── briefings/  # GET: list/load saved briefings
 ├── components/
 │   ├── ui/                 # shadcn/ui (button, card, badge, table, dialog, etc.)
 │   ├── shared/             # header, category-badge, score-bar, status-badge, status-select, breadcrumb
-│   ├── dashboard/          # kpi-cards, top-candidates, category-summary, dashboard-shell, filter-bar, article-list, status-overview
+│   ├── dashboard/          # kpi-cards, top-candidates, category-summary, dashboard-shell, filter-bar, article-list, status-overview, page-type-settings-dialog
 │   ├── upload/             # csv-upload-zone, upload-dialog
 │   ├── analysis/           # analysis-header, structure-check, seo-check, content-check, ai-suggestions, copy-block, keyword-table, article-nav
 │   ├── briefing/           # briefing-input, briefing-progress, briefing-result, heading-structure-card, keyword-cluster-card, elements-card, faq-card, yoast-card, internal-links-card, serp-context-card
 │   ├── gsc/                # session-provider, gsc-connect-button, property-selector, gsc-status-banner
 │   └── serp/               # serp-results-panel
-├── hooks/                  # use-auth, use-csv-upload, use-article-analysis, use-serp-analysis, use-briefing, use-gsc, use-supabase-sync
+├── hooks/                  # use-auth, use-csv-upload, use-article-analysis, use-serp-analysis, use-briefing, use-gsc, use-supabase-sync, use-page-type-settings
 ├── lib/
 │   ├── auth.ts             # NextAuth.js config (Google provider, token refresh)
 │   ├── store.ts            # Zustand store (CSV data, scored pages, analysis, article statuses, GSC connection)
 │   ├── format.ts           # German number formatting
-│   ├── filter-pages.ts     # Filter/sort utility for dashboard
+│   ├── filter-pages.ts     # Filter/sort utility for dashboard (category, impressions, position, status, search)
+│   ├── page-type-filter.ts # URL-based page type pre-filter (filterPagesByType, computeOverviewFromPages, analyzeUrlPrefixes)
+│   ├── page-type-config.ts # Page type presets (nur-artikel, artikel-vergleiche, alle) + defaults
 │   ├── status-config.ts    # Article status definitions (offen/in-bearbeitung/optimiert/ignoriert)
 │   ├── csv/                # parser, validator, merger
 │   ├── scoring/            # benchmarks, categories, engine
@@ -68,8 +72,8 @@ src/
 │   ├── claude/             # client, prompts
 │   ├── gsc/                # client (GSC API), transformer (API rows → PageData[])
 │   ├── serp/               # client (ValueSERP, abstracted), analyzer
-│   └── supabase/           # client.ts (browser), server.ts (service role), mappers.ts, persist-import.ts
-└── types/                  # gsc.ts, scoring.ts, analysis.ts, csv.ts, serp.ts, dashboard.ts, briefing.ts, auth.ts, gsc-api.ts, database.ts
+│   └── supabase/           # client.ts (browser), server.ts (service role), mappers.ts
+└── types/                  # gsc.ts, scoring.ts, analysis.ts, csv.ts, serp.ts, dashboard.ts, briefing.ts, auth.ts, gsc-api.ts, database.ts, page-type-filter.ts
 ```
 
 ## Current State (Phase 1 complete, Phase 2 in progress, Phase 3 started)
@@ -86,16 +90,20 @@ src/
 7. **GSC API Integration** — Google OAuth2 (NextAuth.js v5), Search Console API for direct data import, real keyword-to-URL mapping, property selector, date range picker, connected status banner, CSV fallback preserved
 
 ### Phase 3 Modules (in progress)
-8. **Supabase Database** — Schema deployed (8 tables + migrations). RLS enabled. TypeScript types generated. Dual-mode persistence: logged-in users read/write Supabase, demo/anonymous users use localStorage.
+8. **Supabase Database** — Schema deployed (10 tables + migrations). RLS enabled. Live data architecture: GSC data is always fresh from API (memory only), only valuable user data persisted (statuses, analyses, snapshots, briefings, settings).
 9. **Supabase Auth** — Google OAuth for user accounts. Login page at /login. Route protection via Next.js middleware. Profile auto-created via DB trigger on signup. Demo mode at /dashboard?demo=true (localStorage only, banner shown). NextAuth stripped to GSC-only OAuth. GSC tokens persisted to gsc_connections table.
+10. **URL Filter (Seitentyp)** — Pre-filter layer for dashboard. Default "Nur Artikel" shows only /artikel/ URLs, hiding auto-generated /aktie/ pages. Configurable presets + custom include/exclude rules. Affects KPIs, Top-10, category summary, status overview. Settings persisted in Supabase + localStorage.
+11. **Optimization Tracking** — When marking article as "optimiert", current metrics (position, CTR, impressions, clicks) are snapshot-saved to article_snapshots. Article detail shows before/after comparison.
 
 ### Key Features
 - Progressive Disclosure: structure/SEO checks instant, AI analysis on button click
-- Dual-mode persistence: Supabase for logged-in users, localStorage for anonymous (Zustand persist middleware)
+- Live data architecture: GSC data fetched fresh from API, lives in memory only. No Supabase roundtrip for dashboard data.
 - Article status tracking (offen/in-bearbeitung/optimiert/ignoriert) persisted in Supabase + localStorage
 - Article analysis caching: saved to Supabase, loaded from cache on revisit (7-day TTL, re-analyze button)
 - Briefing persistence: saved to Supabase, /briefings list page to browse saved briefings
-- Filter bar: category, impressions range, position range, status, text search (debounced), sortBy/sortDir
+- URL filter (Seitentyp): pre-filters all dashboard components. Default "Nur Artikel" → only editorial content. Presets: nur-artikel, artikel-vergleiche, alle. Custom rules via settings dialog.
+- Optimization snapshots: position/CTR/impressions saved when marking as optimized. Before/after comparison in article detail.
+- Filter bar: page type, category, impressions range, position range, status, text search (debounced), sortBy/sortDir
 - Full paginated article list (25/page) below Top-10 section
 - Clickable category distribution sidebar (filters the list)
 - Status overview row with counts (clickable to filter)
@@ -151,28 +159,31 @@ src/
 - Landing page: Static HTML at /landing/index.html (served via public/landing/), "Kostenlos starten" → /login
 - Profile sync: DB trigger auto-creates profile on Supabase Auth signup (auth_user_id column links to auth.users)
 - GSC API: server-only client in src/lib/gsc/client.ts, transformer in src/lib/gsc/transformer.ts
-- GSC data flow: OAuth → /api/gsc/sites → /api/gsc/data (two parallel calls) → store
+- GSC data flow: OAuth → /api/gsc/sites → /api/gsc/data (two parallel calls) → store (memory only, NOT persisted to Supabase)
 - GSC two-call architecture: Call 1 (no dimensions) → exact GSC UI totals for KPI cards. Call 2 (query+page dimensions) → keyword-URL mapping for article list. MAX_TOTAL_ROWS = 100k safety cap.
 - GSC date presets: shared in src/lib/gsc/date-presets.ts (7d/28d/3m/6m/12m), used by property-selector + status banner
 - Data sources: GSC API (primary, real keyword mapping) or CSV (fallback, estimated mapping)
+- Live data architecture: GSC pages/keywords are NEVER persisted to Supabase. Fetched fresh from GSC API, live in Zustand store (memory). Only user-generated data is persisted (statuses, analyses, snapshots, briefings, settings).
 - State management: Zustand store with persist middleware, no prop drilling
 - GSC connection state: persisted in store (property, dateRange, connectedAt, dataSource)
-- Article statuses: persisted in store (keyed by URL), survive CSV re-uploads
+- Article statuses: persisted in store (keyed by URL) + Supabase, survive page reloads
+- Page type filter: pre-filter layer in dashboard-shell. `filterPagesByType()` runs before all dashboard consumers. Presets defined in src/lib/page-type-config.ts. Settings in Zustand store (persisted) + Supabase.
+- Dashboard data flow: store.pages → filterPagesByType() → typeFilteredPages → [KPIs, TopCandidates, Categories, StatusOverview] + filterAndSortPages() → ArticleList
 - Dashboard filters: ephemeral (useState in DashboardShell), reset on page reload
 - Filter/sort logic: pure function in src/lib/filter-pages.ts, used by dashboard shell
+- Optimization snapshots: When user marks article as "optimiert", current metrics saved to article_snapshots table. Displayed as before/after comparison in article detail view.
 - Supabase: Browser client in src/lib/supabase/client.ts, service client in src/lib/supabase/server.ts
-- Supabase writes: Always via service role key in API routes (NextAuth session verifies user_id)
+- Supabase writes: Always via service role key in API routes (Supabase Auth session verifies user_id)
 - Supabase types: Auto-generated in src/types/database.ts (regenerate via MCP after schema changes)
 - Supabase project: seo_cockpit (ID: xbeyuwpudimffqcktcyp, region: eu-west-1)
-- Supabase dual-mode: Logged in → read/write Supabase (with localStorage as fast cache). Not logged in → localStorage only.
+- Supabase tables (active): profiles, gsc_connections, article_statuses, article_analyses, article_snapshots, user_settings, briefings
+- Supabase tables (deprecated, empty): pages, keywords, gsc_imports — kept for potential future use
 - Supabase profile: Auto-created via DB trigger on Supabase Auth signup. `auth_user_id` links to `auth.users.id`.
 - Supabase user ID helper: `getAuthenticatedUserId()` in src/lib/api-auth.ts, uses Supabase Auth session → profile lookup, returns profile UUID or null
-- Supabase persistence: All API routes that modify data (analyze, briefing, gsc/data) auto-persist to Supabase if user is logged in (non-blocking)
-- Supabase hydration: `useSupabaseSync()` hook fetches pages + statuses from Supabase on dashboard mount if store is empty
+- Supabase persistence: article_analyses, article_statuses, article_snapshots, briefings, user_settings auto-persist if user is logged in (non-blocking)
+- Supabase hydration: `useSupabaseSync()` hook fetches statuses from Supabase on dashboard mount. `usePageTypeSettings()` hook syncs page type settings.
 - Supabase mappers: src/lib/supabase/mappers.ts converts between DB columns (English) and app types (German field names)
 - Supabase analysis cache: 7-day TTL, "Erneut analysieren" button for fresh analysis
-- Supabase batch inserts: Chunked in groups of 500 rows (pages, keywords) to avoid payload limits
-- Supabase conflict resolution: Supabase data wins on login. If Supabase empty + localStorage has data → migrate to Supabase.
 
 ## Environment Variables (.env.local)
 

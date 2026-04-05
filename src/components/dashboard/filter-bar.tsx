@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Search, ArrowUp, ArrowDown, X, Filter } from 'lucide-react';
+import { Search, ArrowUp, ArrowDown, X, Filter, Settings2 } from 'lucide-react';
 import { Circle, Clock, CheckCircle2, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,9 +16,11 @@ import {
 } from '@/components/ui/select';
 import { CATEGORIES } from '@/lib/scoring/categories';
 import { ARTICLE_STATUSES, STATUS_ORDER } from '@/lib/status-config';
+import { PAGE_TYPE_PRESETS, PRESET_ORDER } from '@/lib/page-type-config';
 import { DEFAULT_FILTERS } from '@/types/dashboard';
 import type { DashboardFilters } from '@/types/dashboard';
 import type { CategoryId, ArticleStatusId } from '@/types/scoring';
+import type { PageTypePresetId } from '@/types/page-type-filter';
 
 const STATUS_ICONS = { Circle, Clock, CheckCircle2, EyeOff } as const;
 
@@ -42,9 +44,22 @@ interface FilterBarProps {
   onFilterChange: (partial: Partial<DashboardFilters>) => void;
   totalResults: number;
   totalPages: number;
+  totalAllPages: number;
+  pageTypePreset: PageTypePresetId;
+  onPageTypeChange: (preset: PageTypePresetId) => void;
+  onSettingsClick: () => void;
 }
 
-export function FilterBar({ filters, onFilterChange, totalResults, totalPages }: FilterBarProps) {
+export function FilterBar({
+  filters,
+  onFilterChange,
+  totalResults,
+  totalPages,
+  totalAllPages,
+  pageTypePreset,
+  onPageTypeChange,
+  onSettingsClick,
+}: FilterBarProps) {
   // Debounced search: local state for immediate input, debounced propagation
   const [searchLocal, setSearchLocal] = useState(filters.search);
   const [searchVersion, setSearchVersion] = useState(0);
@@ -101,6 +116,37 @@ export function FilterBar({ filters, onFilterChange, totalResults, totalPages }:
       {/* Row 1: Filters */}
       <div className="flex flex-wrap items-center gap-2">
         <Filter className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+
+        {/* Page type preset */}
+        <div className="flex items-center gap-1">
+          <Select
+            value={pageTypePreset}
+            onValueChange={(v) => onPageTypeChange(v as PageTypePresetId)}
+          >
+            <SelectTrigger className="h-8 text-xs border-border/60 min-w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PRESET_ORDER.map((id) => {
+                const preset = PAGE_TYPE_PRESETS[id];
+                return (
+                  <SelectItem key={id} value={id}>
+                    {preset.label}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            onClick={onSettingsClick}
+            title="URL-Filter Einstellungen"
+          >
+            <Settings2 className="w-3.5 h-3.5" />
+          </Button>
+        </div>
 
         {/* Category multi-select */}
         <Popover>
@@ -287,7 +333,8 @@ export function FilterBar({ filters, onFilterChange, totalResults, totalPages }:
         {/* Spacer + results info */}
         <div className="ml-auto flex items-center gap-3">
           <span className="text-muted-foreground tabular-nums">
-            {totalResults} von {totalPages} Artikeln
+            {totalResults} von {totalPages} Artikel{' '}
+            <span className="text-muted-foreground/50">· {totalAllPages.toLocaleString('de-DE')} Seiten gesamt</span>
           </span>
 
           {hasActiveFilters && (

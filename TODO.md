@@ -184,7 +184,38 @@
 - [x] Landing Page: /landing/index.html "Kostenlos starten" → /login
 - [x] Token-Persistenz: GSC Tokens in gsc_connections via NextAuth JWT callback
 
-### Phase 3e: localStorage ablösen (pending)
+### Phase 3e: Live Data Architecture (done)
+
+- [x] GSC-Daten sind live-only: Frisch aus GSC API, nur im Memory (Zustand Store)
+- [x] pages/keywords/gsc_imports Tabellen geleert (TRUNCATE), nicht mehr beschrieben
+- [x] persist-import.ts gelöscht, /api/supabase/imports + /api/supabase/pages → no-op
+- [x] page_id Lookups aus statuses + analyze Route entfernt
+- [x] use-supabase-sync: Nur noch Statuses hydratieren (keine Pages mehr)
+- [x] currentImportId aus Store entfernt
+
+### Phase 3f: URL-Filter / Seitentyp (done)
+
+- [x] PageTypeSettings Types (src/types/page-type-filter.ts)
+- [x] Page Type Presets + Config (src/lib/page-type-config.ts)
+- [x] filterPagesByType + computeOverviewFromPages + analyzeUrlPrefixes (src/lib/page-type-filter.ts)
+- [x] Zustand Store: pageTypeSettings Slice + localStorage persist
+- [x] Dashboard Shell: Pre-Filter Layer → typeFilteredPages für alle Widgets
+- [x] Filter Bar: Seitentyp-Dropdown + Gear-Icon für Settings
+- [x] Status-Zeile: "X von Y Artikel · Z Seiten gesamt"
+- [x] Empty-State Hint wenn Filter keine Ergebnisse
+- [x] PageTypeSettingsDialog: URL-Analyse, Custom Rules, Live-Preview
+- [x] Supabase: user_settings Tabelle + /api/supabase/settings Route
+- [x] usePageTypeSettings Hook: Sync mit Supabase
+
+### Phase 3g: Optimierungs-Tracking (done)
+
+- [x] Supabase: article_snapshots Tabelle (Position, CTR, Impressions, Clicks bei Optimierung)
+- [x] Status-Route: Snapshot insert wenn status='optimiert'
+- [x] Article Page: Metriken an syncArticleStatus übergeben
+- [x] /api/supabase/snapshots GET Route
+- [x] Article Detail: Vorher/Nachher-Vergleich (SnapshotComparison Komponente)
+
+### Phase 3h: localStorage ablösen (pending)
 
 - [ ] Zustand Store: persist middleware entfernen / auf Supabase-backed umstellen
 - [ ] Fallback-Logik: Offline-Modus oder localStorage als Cache beibehalten?
